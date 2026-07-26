@@ -1,119 +1,93 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luu Translator</title>
 
-    <title>Luu Translator</title>
-
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
     <h1>🪄 Luu Translator</h1>
 
     <p class="subtitle">
-        แปลภาษาไทยเป็นภาษาลู
+        แปลภาษาไทย → ภาษาลู
     </p>
 
+    <div class="card">
 
-
-    <div class="box">
-
-        <label>
+        <label for="thaiInput">
             ภาษาไทย
         </label>
 
-
         <textarea
             id="thaiInput"
-            placeholder="พิมพ์ หรือวางข้อความภาษาไทย..."
+            placeholder="พิมพ์หรือวางข้อความ..."
+            spellcheck="false"
+            autofocus
         ></textarea>
 
+        <div class="toolbar">
 
-        <div class="buttons">
-
-            <button onclick="pasteText()">
+            <button
+                type="button"
+                onclick="pasteText()">
                 📋 Paste
             </button>
 
-
-            <button onclick="clearText()">
+            <button
+                type="button"
+                onclick="clearText()">
                 ✖ Clear
             </button>
 
         </div>
 
-
     </div>
 
-
-
-
     <button
-        class="translate"
+        class="translate-btn"
+        type="button"
         onclick="translateLuu()">
 
         แปลเป็นภาษาลู
 
     </button>
 
-
-
-
-
-    <div class="box result-box">
-
+    <div class="card">
 
         <label>
             ภาษาลู
         </label>
 
+        <div
+            id="result"
+            class="result">
+        </div>
 
-        <div id="result"
-             class="result">
+        <div class="toolbar">
+
+            <button
+                type="button"
+                onclick="copyResult()">
+                📄 Copy
+            </button>
 
         </div>
 
-
     </div>
-
-
-
-
-
-    <button
-        class="copy"
-        onclick="copyResult()">
-
-        📄 Copy
-
-    </button>
-
 
 </div>
 
-
-
-
-
-<script src="thai_pronunciation.js"></script>
-
-<script src="thai_syllable.js"></script>
-
+<script src="luu_engine.js"></script>
 <script src="app.js"></script>
 
-
 </body>
-
 </html>
