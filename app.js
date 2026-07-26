@@ -1,33 +1,29 @@
 let dictionary = [];
 
 
+
 const input =
-document.getElementById("inputText");
+document.getElementById("thaiInput");
 
 
 const output =
-document.getElementById("outputText");
+document.getElementById("luuOutput");
 
 
 const stars =
 document.getElementById("stars");
 
 
-const notice =
-document.getElementById("notice");
 
 
-
-
-// โหลดฐานข้อมูลคำ
 
 fetch("data/dictionary.json")
 
-.then(response => response.json())
+.then(response=>response.json())
 
-.then(data => {
+.then(data=>{
 
-    dictionary = data;
+dictionary=data;
 
 });
 
@@ -35,204 +31,105 @@ fetch("data/dictionary.json")
 
 
 
-// แสดงดาว
 
-function showStars(number){
 
-    return "⭐".repeat(number)
-    +
-    "☆".repeat(5-number);
+function translate(){
+
+
+let text =
+input.value.trim();
+
+
+
+if(text===""){
+
+
+output.value="";
+
+stars.innerHTML="☆☆☆☆☆";
+
+return;
+
 
 }
 
 
 
+let words =
+text.split(/\s+/);
 
 
-// แปลประโยค
 
-function translateSentence(){
+let result=[];
 
+let score=[];
 
-    let sentence =
-    input.value.trim();
 
 
 
-    if(sentence === ""){
+words.forEach(word=>{
 
-        output.value = "";
 
-        stars.innerHTML =
-        "☆☆☆☆☆";
+let found =
+dictionary.find(
+item=>item.thai===word
+);
 
-        if(notice){
 
-            notice.innerHTML = "";
 
-        }
+if(found){
 
-        return;
 
-    }
+result.push(found.luu);
 
 
+score.push(
+found.confidence
+);
 
 
+}
 
-    let words =
-    sentence.split(/\s+/);
+else{
 
 
+result.push(word);
 
-    let result = [];
+score.push(0);
 
-    let scores = [];
 
-    let missing = [];
+}
 
 
 
+});
 
 
 
-    words.forEach(word => {
 
 
+output.value =
+result.join(" ");
 
-        let found =
-        dictionary.find(
-            item => item.thai === word
-        );
 
 
 
-        if(found){
 
+let avg =
+score.reduce(
+(a,b)=>a+b,
+0
+)
+/score.length;
 
 
-            // รองรับหลายรูปแบบ
 
-            if(Array.isArray(found.luu)){
-
-                result.push(
-                    found.luu[0]
-                );
-
-            }
-
-            else{
-
-                result.push(
-                    found.luu
-                );
-
-            }
-
-
-
-            scores.push(
-                found.confidence
-            );
-
-
-
-        }
-
-
-        else{
-
-
-            result.push(word);
-
-
-            missing.push(word);
-
-
-        }
-
-
-    });
-
-
-
-
-
-
-    output.value =
-    result.join(" ");
-
-
-
-
-
-    // คำนวณคะแนนเฉลี่ย
-
-    if(scores.length > 0){
-
-
-
-        let average =
-        Math.round(
-
-            scores.reduce(
-                (a,b)=>a+b,
-                0
-            )
-            /
-            scores.length
-
-        );
-
-
-
-        stars.innerHTML =
-        showStars(average);
-
-
-
-    }
-
-    else{
-
-
-        stars.innerHTML =
-        "☆☆☆☆☆";
-
-
-    }
-
-
-
-
-
-    if(notice){
-
-
-
-        if(missing.length > 0){
-
-
-            notice.innerHTML =
-            "📝 ยังไม่มีข้อมูล: "
-            +
-            missing.join(", ");
-
-
-        }
-
-        else{
-
-
-            notice.innerHTML =
-            "✨ แปลครบทุกคำ";
-
-
-        }
-
-
-    }
-
+stars.innerHTML =
+"⭐".repeat(Math.round(avg))
++
+"☆".repeat(
+5-Math.round(avg)
+);
 
 
 }
@@ -241,11 +138,11 @@ function translateSentence(){
 
 
 
-// พิมพ์แล้วแปลทันที
+
 
 input.addEventListener(
 "input",
-translateSentence
+translate
 );
 
 
@@ -254,27 +151,22 @@ translateSentence
 
 
 
-// สลับภาษา
+
+// Paste
 
 document
-.getElementById("switchBtn")
-.onclick = function(){
+.getElementById("pasteBtn")
+.onclick = async()=>{
 
 
-
-    let temp =
-    input.value;
-
+let text =
+await navigator.clipboard.readText();
 
 
-    input.value =
-    output.value;
+input.value=text;
 
 
-
-    output.value =
-    temp;
-
+translate();
 
 
 };
@@ -285,217 +177,40 @@ document
 
 
 
-// คัดลอก
+
+// Clear
+
+document
+.getElementById("clearBtn")
+.onclick=()=>{
+
+
+input.value="";
+
+output.value="";
+
+stars.innerHTML="☆☆☆☆☆";
+
+
+};
+
+
+
+
+
+
+
+
+// Copy
 
 document
 .getElementById("copyBtn")
-.onclick = function(){
+.onclick=()=>{
 
 
-
-    navigator.clipboard.writeText(
-        output.value
-    );
-
-
-};
-
-
-
-
-
-
-
-// บันทึกคำโปรด
-
-document
-.getElementById("favBtn")
-.onclick = function(){
-
-
-
-    let favorites =
-
-    JSON.parse(
-
-        localStorage.getItem(
-            "favorites"
-        )
-
-    )
-    ||
-    [];
-
-
-
-
-    favorites.push({
-
-        thai:
-        input.value,
-
-
-        luu:
-        output.value
-
-
-    });
-
-
-
-
-
-    localStorage.setItem(
-
-        "favorites",
-
-        JSON.stringify(
-            favorites
-        )
-
-    );
-
-
-
-    alert(
-        "บันทึกแล้ว 💗"
-    );
-
-
-};
-
-
-
-
-
-
-
-
-// ระบบไมโครโฟน
-
-const SpeechRecognition =
-
-window.SpeechRecognition ||
-
-window.webkitSpeechRecognition;
-
-
-
-
-
-if(SpeechRecognition){
-
-
-
-    const recognition =
-    new SpeechRecognition();
-
-
-
-    recognition.lang =
-    "th-TH";
-
-
-
-
-    recognition.onresult =
-    function(event){
-
-
-
-        input.value =
-
-        event.results[0][0]
-        .transcript;
-
-
-
-        translateSentence();
-
-
-
-    };
-
-
-
-
-
-    const mic =
-    document.getElementById(
-        "micBtn"
-    );
-
-
-
-    if(mic){
-
-
-        mic.onclick =
-        function(){
-
-
-            recognition.start();
-
-
-        };
-
-
-    }
-
-
-
-}
-
-
-
-
-
-
-
-// อ่านออกเสียง
-
-const speakButton =
-document.getElementById(
-"speakBtn"
+navigator.clipboard.writeText(
+output.value
 );
 
 
-
-if(speakButton){
-
-
-
-    speakButton.onclick =
-    function(){
-
-
-
-        let speech =
-
-        new SpeechSynthesisUtterance(
-
-            output.value
-
-        );
-
-
-
-        speech.lang =
-        "th-TH";
-
-
-
-        speech.rate =
-        0.8;
-
-
-
-        speechSynthesis.speak(
-            speech
-        );
-
-
-    };
-
-
-}
+};
