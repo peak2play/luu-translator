@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
 
 <meta charset="UTF-8">
@@ -11,6 +12,7 @@
 
 </head>
 
+
 <body>
 
 <div class="container">
@@ -21,30 +23,26 @@
         แปลภาษาไทย → ภาษาลู
     </p>
 
+
     <div class="card">
 
-        <label for="thaiInput">
+        <label>
             ภาษาไทย
         </label>
 
         <textarea
             id="thaiInput"
-            placeholder="พิมพ์หรือวางข้อความ..."
-            spellcheck="false"
-            autofocus
+            placeholder="พิมพ์หรือวางข้อความที่นี่..."
         ></textarea>
+
 
         <div class="toolbar">
 
-            <button
-                type="button"
-                onclick="pasteText()">
+            <button onclick="pasteText()">
                 📋 Paste
             </button>
 
-            <button
-                type="button"
-                onclick="clearText()">
+            <button onclick="clearText()">
                 ✖ Clear
             </button>
 
@@ -52,14 +50,15 @@
 
     </div>
 
+
     <button
         class="translate-btn"
-        type="button"
         onclick="translateLuu()">
 
         แปลเป็นภาษาลู
 
     </button>
+
 
     <div class="card">
 
@@ -67,27 +66,35 @@
             ภาษาลู
         </label>
 
+
         <div
             id="result"
             class="result">
+
         </div>
+
 
         <div class="toolbar">
 
-            <button
-                type="button"
-                onclick="copyResult()">
+            <button onclick="copyResult()">
                 📄 Copy
             </button>
 
         </div>
 
+
     </div>
+
 
 </div>
 
+
+
+<!-- โหลด Engine ก่อน App -->
 <script src="luu_engine.js"></script>
 <script src="app.js"></script>
 
+
 </body>
+
 </html>
