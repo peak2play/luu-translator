@@ -1,203 +1,435 @@
-let dictionary = [];
+// Luu Translator
+// Rule Engine Version 1.0
 
 
-
-const thaiInput =
-document.getElementById("thaiInput");
+let luuRules = null;
 
 
-const luuOutput =
-document.getElementById("luuOutput");
+// โหลดกฎภาษาลู
+async function loadRules() {
 
+    try {
 
-const stars =
-document.getElementById("stars");
+        const response = await fetch("data/luu_structure.json");
 
+        luuRules = await response.json();
 
+        console.log("Luu rules loaded");
 
+    } catch (error) {
 
+        console.error(
+            "Cannot load luu_structure.json",
+            error
+        );
 
-fetch("data/dictionary.json")
-
-.then(response => response.json())
-
-.then(data => {
-
-dictionary = data;
-
-});
-
-
-
-
-
-
-function translateLuu(){
-
-
-let text =
-thaiInput.value.trim();
-
-
-
-if(text===""){
-
-luuOutput.value="";
-
-stars.innerHTML="☆☆☆☆☆";
-
-return;
+    }
 
 }
 
 
-
-let words =
-text.split(/\s+/);
+loadRules();
 
 
 
-let result=[];
+// ----------------------------
+// ปุ่มแปล
+// ----------------------------
 
-let scores=[];
-
-
-
-words.forEach(word=>{
+async function translateLuu() {
 
 
-let found =
-dictionary.find(
-item => item.thai === word
-);
+    if (!luuRules) {
+
+        await loadRules();
+
+    }
 
 
-
-if(found){
-
-result.push(found.luu);
-
-scores.push(found.confidence || 0);
-
-}
-
-else {
-
-result.push(word);
-
-scores.push(0);
-
-}
-
-
-});
+    const input =
+        document.getElementById("thaiInput")
+        .value
+        .trim();
 
 
 
-luuOutput.value =
-result.join(" ");
+    if (!input) {
+
+        document.getElementById("result")
+        .innerText = "";
+
+        return;
+
+    }
 
 
 
-let average =
-scores.reduce(
-(a,b)=>a+b,
-0
-) / scores.length;
+    const result =
+        convertText(input);
 
 
 
-let star =
-Math.round(average);
-
-
-
-stars.innerHTML =
-"⭐".repeat(star)
-+
-"☆".repeat(5-star);
-
+    document.getElementById("result")
+    .innerText = result;
 
 
 }
 
 
 
+// ----------------------------
+// แปลงข้อความ
+// ----------------------------
 
-thaiInput.addEventListener(
-"input",
-translateLuu
-);
-
-
+function convertText(text) {
 
 
+    // แยกคำด้วยช่องว่าง
 
-// Paste
-
-document
-.getElementById("pasteBtn")
-.onclick = async()=>{
+    const words =
+        text.split(/\s+/);
 
 
-try {
+
+    let output = [];
 
 
-let text =
-await navigator.clipboard.readText();
+
+    words.forEach(word => {
 
 
-thaiInput.value=text;
+        output.push(
+            convertWord(word)
+        );
 
 
-translateLuu();
+    });
+
+
+
+    return output.join(" ");
 
 
 }
 
-catch(error){
 
-alert("ไม่สามารถวางข้อความได้ กรุณาอนุญาต Clipboard");
+
+// ----------------------------
+// แปลงคำ
+// ----------------------------
+
+function convertWord(word) {
+
+
+    /*
+        ขั้นนี้เป็น Prototype
+
+        ต่อไปจะเพิ่ม:
+        - Thai syllable analyzer
+        - vowel detector
+        - tone detector
+        - final consonant detector
+        - cluster detector
+
+    */
+
+
+    let rule =
+        selectRule(word);
+
+
+
+    if (!rule) {
+
+        return word;
+
+    }
+
+
+
+    return applyRule(
+        word,
+        rule
+    );
+
 
 }
 
 
-};
+
+// ----------------------------
+// เลือกกฎ
+// ----------------------------
+
+function selectRule(word) {
+
+
+    const rules =
+        luuRules.rules
+        .sort(
+            (a,b)=>
+            a.priority-b.priority
+        );
 
 
 
+    for (let rule of rules) {
 
 
-// Clear
-
-document
-.getElementById("clearBtn")
-.onclick = ()=>{
-
-
-thaiInput.value="";
-
-luuOutput.value="";
-
-stars.innerHTML="☆☆☆☆☆";
-
-
-};
+        const condition =
+            rule.condition;
 
 
 
+        // มี ร หรือ ล
+
+        if (
+            condition.has_rl &&
+            /[รล]/.test(word)
+        ) {
+
+            return rule;
+
+        }
 
 
-// Copy
 
-document
-.getElementById("copyBtn")
-.onclick = async()=>{
+        // มี อุ อู
+
+        if (
+            condition.has_u_vowel &&
+            /[ุู]/.test(word)
+        ) {
+
+            return rule;
+
+        }
 
 
-await navigator.clipboard.writeText(
-luuOutput.value
-);
+
+        // default
+
+        if (
+            condition.default
+        ) {
+
+            return rule;
+
+        }
 
 
-};
+    }
+
+
+
+    return null;
+
+
+}
+
+
+
+// ----------------------------
+// ใช้กฎสร้างคำ
+// ----------------------------
+
+function applyRule(word, rule) {
+
+
+    let first =
+        word.charAt(0);
+
+
+
+    let rest =
+        word.substring(1);
+
+
+
+    let newFirst =
+        rule.transform.replace_initial;
+
+
+
+    let firstPart =
+        newFirst + rest;
+
+
+
+    let vowel =
+        detectVowel(word);
+
+
+
+    let addVowel =
+        chooseAddedVowel(
+            vowel,
+            rule
+        );
+
+
+
+    let secondPart =
+        first +
+        addVowel +
+        getFinal(word);
+
+
+
+    return firstPart + secondPart;
+
+
+}
+
+
+
+// ----------------------------
+// ตรวจสระ
+// ----------------------------
+
+function detectVowel(word) {
+
+
+    const longVowels =
+        [
+            "า",
+            "ี",
+            "ื",
+            "ู",
+            "เ",
+            "แ",
+            "โ",
+            "อ",
+            "เอ",
+            "เอีย",
+            "เอือ"
+        ];
+
+
+
+    for(
+        let v of longVowels
+    ){
+
+        if(word.includes(v)){
+
+            return "long";
+
+        }
+
+    }
+
+
+    return "short";
+
+
+}
+
+
+
+// ----------------------------
+// เลือกสระเติม
+// ----------------------------
+
+function chooseAddedVowel(
+    type,
+    rule
+){
+
+    if(type==="long"){
+
+        return rule
+        .transform
+        .added_vowel
+        .long;
+
+    }
+
+
+    return rule
+    .transform
+    .added_vowel
+    .short;
+
+
+}
+
+
+
+// ----------------------------
+// ตัวสะกด
+// ----------------------------
+
+function getFinal(word){
+
+    const finals =
+        [
+            "ก",
+            "ข",
+            "ค",
+            "ง",
+            "ด",
+            "ต",
+            "น",
+            "ม",
+            "ย",
+            "ว",
+            "บ",
+            "ป"
+        ];
+
+
+
+    for(
+        let f of finals
+    ){
+
+        if(
+            word.endsWith(f)
+        ){
+
+            return f;
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+
+// ----------------------------
+// ปุ่ม Paste
+// ----------------------------
+
+async function pasteText(){
+
+    const text =
+        await navigator.clipboard.readText();
+
+
+    document.getElementById("thaiInput")
+    .value = text;
+
+
+}
+
+
+
+// ----------------------------
+// ปุ่ม Clear
+// ----------------------------
+
+function clearText(){
+
+    document.getElementById("thaiInput")
+    .value = "";
+
+
+    document.getElementById("result")
+    .innerText = "";
+
+}
