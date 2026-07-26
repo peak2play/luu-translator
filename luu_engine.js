@@ -1,57 +1,32 @@
 // =====================================
-// Luu Engine V2.5.1
-// Stable + แก้ เทย แมว ลูก
+// Luu Engine V2.5.2
+// Stable Basic Dictionary Patch
 // =====================================
 
 
 function splitWords(text){
 
-    const dictionary = {
-
-        "รักแมว":[
-            "รัก",
-            "แมว"
-        ]
-
-    };
-
-
-    let result=[];
-
-
-    for(let w of text.trim().split(/\s+/)){
-
-        if(dictionary[w]){
-
-            result.push(...dictionary[w]);
-
-        } else {
-
-            result.push(w);
-
-        }
-
-    }
-
-
-    return result;
+    return text
+        .trim()
+        .split(/\s+/);
 
 }
 
 
 
-// แยกคำหลายพยางค์
+// -----------------------------
+// แยกพยางค์
+// -----------------------------
 
 function splitSyllables(word){
 
-    const dictionary={
 
+    const dictionary = {
 
         "กะเทย":[
             "กะ",
             "เทย"
         ],
-
 
         "เปียโน":[
             "เปีย",
@@ -67,12 +42,15 @@ function splitSyllables(word){
 
 
 
+// -----------------------------
 // Parser
+// -----------------------------
 
 function parseThaiSyllable(word){
 
 
-    // ล็อกคำที่ผ่านแล้ว
+    // ===== Special Cases =====
+
 
     if(word==="เปีย"){
 
@@ -99,9 +77,16 @@ function parseThaiSyllable(word){
     if(word==="เทย"){
 
         return {
-            initial:"ท",
-            vowel:"เอย",
-            final:""
+            special:"เลยทุย"
+        };
+
+    }
+
+
+    if(word==="ลูก"){
+
+        return {
+            special:"ซักลุก"
         };
 
     }
@@ -122,16 +107,15 @@ function parseThaiSyllable(word){
 
 
 
-    // ตัวสะกด
-
     const finals=[
+
         "ก",
         "ง",
         "ด",
         "น",
         "บ",
-        "ม",
-        "ว"
+        "ม"
+
     ];
 
 
@@ -165,11 +149,9 @@ function parseThaiSyllable(word){
 
 
 
-    // สระ
+    if(word.includes("ะ")){
 
-    if(word.includes("แ")){
-
-        data.vowel="แอ";
+        data.vowel="อะ";
 
     }
 
@@ -179,13 +161,7 @@ function parseThaiSyllable(word){
 
     }
 
-    else if(word.includes("ะ")){
-
-        data.vowel="อะ";
-
-    }
-
-    else {
+    else{
 
         data.vowel="อะ";
 
@@ -199,21 +175,34 @@ function parseThaiSyllable(word){
 
 
 
+// -----------------------------
 // Builder
+// -----------------------------
 
 function buildLuu(data){
 
 
+    if(data.special){
+
+        return data.special;
+
+    }
+
+
+
     let firstInitial =
-    (
-        data.initial==="ร"
-        ||
-        data.initial==="ล"
-    )
-    ?
-    "ซ"
-    :
-    "ล";
+
+        (
+            data.initial==="ร"
+            ||
+            data.initial==="ล"
+        )
+
+        ?
+        "ซ"
+
+        :
+        "ล";
 
 
 
@@ -222,73 +211,18 @@ function buildLuu(data){
 
 
 
-    switch(data.vowel){
+    if(data.vowel==="อะ"){
 
 
-        case "อะ":
-
-
-            if(data.final){
-
-                first =
-                    firstInitial
-                    +
-                    "ั"
-                    +
-                    data.final;
-
-
-                second =
-                    data.initial
-                    +
-                    "ุ"
-                    +
-                    data.final;
-
-            }
-            else{
-
-                first =
-                    firstInitial
-                    +
-                    "ะ";
-
-
-                second =
-                    data.initial
-                    +
-                    "ุ";
-
-            }
-
-            break;
-
-
-
-        case "อู":
+        if(data.final){
 
 
             first =
                 firstInitial
                 +
-                "ู";
-
-
-            second =
-                data.initial
+                "ั"
                 +
-                "ุ";
-
-
-            break;
-
-
-
-        case "แอ":
-
-
-            first =
-                "แล";
+                data.final;
 
 
             second =
@@ -296,47 +230,65 @@ function buildLuu(data){
                 +
                 "ุ"
                 +
-                (data.final || "");
+                data.final;
 
 
-            break;
+        }
+
+        else{
 
 
-
-        case "เอีย":
-
-            first="เลีย";
-
-            second=data.initial+"ู";
-
-            break;
+            first =
+                firstInitial
+                +
+                "ะ";
 
 
+            second =
+                data.initial
+                +
+                "ุ";
 
-        case "โอ":
+        }
 
-            first="โล";
-
-            second=data.initial+"ู";
-
-            break;
-
-
-
-        case "เอย":
-
-            first="เลย";
-
-            second=data.initial+"ุย";
-
-            break;
+    }
 
 
 
-        default:
+    else if(data.vowel==="เอีย"){
 
-            first=firstInitial;
-            second=data.initial+"ู";
+
+        first="เลีย";
+
+        second =
+            data.initial
+            +
+            "ู";
+
+    }
+
+
+
+    else if(data.vowel==="โอ"){
+
+
+        first="โล";
+
+        second =
+            data.initial
+            +
+            "ู";
+
+    }
+
+
+
+    else{
+
+
+        first=firstInitial;
+
+        second=data.initial+"ู";
 
     }
 
@@ -348,7 +300,9 @@ function buildLuu(data){
 
 
 
+// -----------------------------
 // Translate
+// -----------------------------
 
 function translateSyllable(word){
 
@@ -361,6 +315,7 @@ function translateSyllable(word){
 
 
 function translateWord(word){
+
 
     return splitSyllables(word)
 
@@ -375,6 +330,7 @@ function translateWord(word){
 
 
 function translateLuuText(text){
+
 
     return splitWords(text)
 
