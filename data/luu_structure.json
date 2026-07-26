@@ -1,0 +1,190 @@
+{
+  "version": "1.0",
+
+  "name": "Luu Translator Rule Structure",
+
+  "description": "กฎการแปลงภาษาไทยเป็นภาษาลูแบบ Rule Based",
+
+  "rules": [
+
+    {
+      "id": "special_rl_u",
+      "priority": 1,
+      "description": "คำที่มี ร ล และมีสระ อุ อู",
+
+      "condition": {
+        "has_rl": true,
+        "has_u_vowel": true
+      },
+
+      "transform": {
+        "replace_initial": "ซ",
+        "added_vowel": {
+          "short": "ิ",
+          "long": "ี"
+        },
+        "keep_tone": true,
+        "keep_final": true
+      }
+    },
+
+
+    {
+      "id": "u_vowel",
+      "priority": 2,
+      "description": "คำที่มีสระ อุ อู",
+
+      "condition": {
+        "has_u_vowel": true
+      },
+
+      "transform": {
+        "replace_initial": "หล",
+        "added_vowel": {
+          "short": "ิ",
+          "long": "ี"
+        },
+        "keep_tone": true,
+        "keep_final": true
+      },
+
+      "examples": [
+        {
+          "thai": "กูด",
+          "luu": "หลูดกีด"
+        },
+        {
+          "thai": "สุก",
+          "luu": "หลุกสิก"
+        }
+      ]
+    },
+
+
+    {
+      "id": "rl",
+      "priority": 3,
+      "description": "คำที่มี ร หรือ ล",
+
+      "condition": {
+        "has_rl": true
+      },
+
+      "transform": {
+        "replace_initial": "ซ",
+        "added_vowel": {
+          "short": "ุ",
+          "long": "ู"
+        },
+        "keep_tone": true,
+        "keep_final": true
+      },
+
+      "examples": [
+        {
+          "thai": "รัก",
+          "luu": "ซักรุก"
+        },
+        {
+          "thai": "ลอง",
+          "luu": "ซองลูง"
+        }
+      ]
+    },
+
+
+    {
+      "id": "normal",
+      "priority": 4,
+      "description": "คำทั่วไป",
+
+      "condition": {
+        "default": true
+      },
+
+      "transform": {
+        "replace_initial": "ล",
+
+        "added_vowel": {
+          "short": "ุ",
+          "long": "ู"
+        },
+
+        "keep_tone": true,
+        "keep_final": true
+      },
+
+      "examples": [
+        {
+          "thai": "เก้ง",
+          "luu": "เล้งกุ้ง"
+        },
+        {
+          "thai": "แมว",
+          "luu": "แลวมู"
+        },
+        {
+          "thai": "เทป",
+          "luu": "เลปทูป"
+        }
+      ]
+    }
+
+  ],
+
+
+  "future_rules": [
+
+    {
+      "id": "cluster",
+      "description": "พยัญชนะควบกล้ำ เช่น เพลง ปลา"
+    },
+
+    {
+      "id": "leading_consonant",
+      "description": "อักษรนำ เช่น หนู หนัง"
+    },
+
+    {
+      "id": "multi_syllable",
+      "description": "คำหลายพยางค์"
+    },
+
+    {
+      "id": "compound_vowel",
+      "description": "สระประสม เช่น เอีย เอือ อัว"
+    }
+
+  ],
+
+
+  "examples": [
+
+    {
+      "input": "รัก",
+      "output": "ซักรุก"
+    },
+
+    {
+      "input": "กะเทย",
+      "output": "กะ เลยทุย"
+    },
+
+    {
+      "input": "เก่งมาก",
+      "output": "เล่งกุ่ง ลากมูก"
+    },
+
+    {
+      "input": "ขอบใจ",
+      "output": "หลอบขูใลจู"
+    },
+
+    {
+      "input": "ซีดี",
+      "output": "ลีซู ลีดู"
+    }
+
+  ]
+
+}
