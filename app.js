@@ -1,6 +1,6 @@
 // ======================================
 // Luu Translator
-// App Engine Version 3.0
+// App Engine Version 4.0
 // ======================================
 
 
@@ -9,13 +9,11 @@ let luuRules = [];
 
 
 
-// ======================================
-// Load Rule
-// ======================================
+// โหลดกฎ
 
 async function loadRules(){
 
-    try{
+    try {
 
         const response =
             await fetch(
@@ -30,20 +28,19 @@ async function loadRules(){
         luuRules =
             data.rules.sort(
                 (a,b)=>
-                a.priority-b.priority
+                a.priority - b.priority
             );
 
 
         console.log(
-            "Luu Rule Loaded"
+            "Luu rules loaded"
         );
 
 
-    }
-
-    catch(error){
+    } catch(error){
 
         console.error(
+            "Cannot load rules",
             error
         );
 
@@ -52,25 +49,20 @@ async function loadRules(){
 }
 
 
-
 loadRules();
 
 
 
 
 
-
-
 // ======================================
-// Translate Button
+// แปล
 // ======================================
 
 async function translateLuu(){
 
 
-    if(
-        luuRules.length===0
-    ){
+    if(luuRules.length === 0){
 
         await loadRules();
 
@@ -78,7 +70,7 @@ async function translateLuu(){
 
 
 
-    let text =
+    const input =
         document
         .getElementById("thaiInput")
         .value
@@ -86,7 +78,7 @@ async function translateLuu(){
 
 
 
-    if(!text){
+    if(!input){
 
         document
         .getElementById("result")
@@ -98,14 +90,15 @@ async function translateLuu(){
 
 
 
-    let result =
-        translateSentence(text);
+    const output =
+        translateSentence(input);
 
 
 
     document
     .getElementById("result")
-    .innerText=result;
+    .innerText =
+    output;
 
 
 }
@@ -116,17 +109,15 @@ async function translateLuu(){
 
 
 
-
 // ======================================
-// Translate Sentence
+// ประโยค
 // ======================================
 
+function translateSentence(text){
 
-function translateSentence(sentence){
 
-
-    let words =
-        sentence.split(/\s+/);
+    const words =
+        text.split(/\s+/);
 
 
 
@@ -148,23 +139,22 @@ function translateSentence(sentence){
 
 
 // ======================================
-// Translate Word
+// คำ
 // ======================================
-
 
 function translateWord(word){
 
 
 
-    let syllables =
+    const syllables =
         splitThaiWord(word);
 
 
 
     return syllables
     .map(
-        syllable =>
-        translateSyllable(syllable)
+        s =>
+        translateSyllable(s)
     )
     .join(" ");
 
@@ -179,21 +169,44 @@ function translateWord(word){
 
 
 // ======================================
-// Translate Syllable
+// พยางค์
 // ======================================
-
 
 function translateSyllable(syllable){
 
 
-    let info =
+
+    const pronunciation =
+        analyzePronunciation(
+            syllable
+        );
+
+
+
+    const info =
         analyzeSyllable(
             syllable
         );
 
 
 
-    let rule =
+
+    // ใช้เสียงจริงช่วยตรวจ
+
+    if(
+        pronunciation.hasLeading
+    ){
+
+        info.initial =
+            pronunciation.soundInitial;
+
+    }
+
+
+
+
+
+    const rule =
         selectRule(info);
 
 
@@ -220,38 +233,27 @@ function translateSyllable(syllable){
 
 
 
-
 // ======================================
-// Select Rule
+// เลือกกฎ
 // ======================================
-
 
 function selectRule(info){
 
 
-
     for(
-        let rule of luuRules
+        const rule of luuRules
     ){
 
-
-
-        let c =
+        const c =
             rule.condition;
 
 
 
-
-
-        // ร ล + อุ อู
-
         if(
-
             c.has_rl &&
             c.has_u_vowel &&
             info.hasRL &&
             info.hasU
-
         ){
 
             return rule;
@@ -260,15 +262,9 @@ function selectRule(info){
 
 
 
-
-
-        // อุ อู
-
         if(
-
             c.has_u_vowel &&
             info.hasU
-
         ){
 
             return rule;
@@ -276,16 +272,10 @@ function selectRule(info){
         }
 
 
-
-
-
-        // ร ล
 
         if(
-
             c.has_rl &&
             info.hasRL
-
         ){
 
             return rule;
@@ -293,10 +283,6 @@ function selectRule(info){
         }
 
 
-
-
-
-        // default
 
         if(
             c.default
@@ -306,9 +292,7 @@ function selectRule(info){
 
         }
 
-
     }
-
 
 
     return null;
@@ -324,62 +308,50 @@ function selectRule(info){
 
 
 // ======================================
-// Create Luu Word
+// สร้างภาษาลู
 // ======================================
-
 
 function createLuu(info,rule){
 
 
 
-    let original =
+    const original =
         info.original;
 
 
 
-    let first =
+    const oldInitial =
         info.initial;
 
 
 
-    let remaining =
+    const rest =
         original.substring(1);
 
 
 
-
-
-    // พยางค์แรก
-
-    let firstPart =
+    const firstPart =
         rule.transform.replace_initial
         +
-        remaining;
+        rest;
 
 
 
-
-
-    // พยางค์สอง
-
-    let vowel =
-        getAddedVowel(
-            info,
-            rule
-        );
+    const addVowel =
+        info.long
+        ?
+        rule.transform.added_vowel.long
+        :
+        rule.transform.added_vowel.short;
 
 
 
-
-
-    let secondPart =
-        first
+    const secondPart =
+        oldInitial
         +
-        vowel
+        addVowel
         +
         info.final;
-
-
 
 
 
@@ -394,59 +366,20 @@ function createLuu(info,rule){
 
 
 
-
-// ======================================
-// Added Vowel
-// ======================================
-
-
-function getAddedVowel(info,rule){
-
-
-    if(info.long){
-
-        return rule
-        .transform
-        .added_vowel
-        .long;
-
-    }
-
-
-    return rule
-    .transform
-    .added_vowel
-    .short;
-
-
-}
-
-
-
-
-
-
-
-
 // ======================================
 // Paste
 // ======================================
 
-
 async function pasteText(){
 
-
-    let text =
-        await navigator
-        .clipboard
+    const text =
+        await navigator.clipboard
         .readText();
-
 
 
     document
     .getElementById("thaiInput")
-    .value=text;
-
+    .value = text;
 
 }
 
@@ -460,9 +393,7 @@ async function pasteText(){
 // Clear
 // ======================================
 
-
 function clearText(){
-
 
     document
     .getElementById("thaiInput")
@@ -472,7 +403,6 @@ function clearText(){
     document
     .getElementById("result")
     .innerText="";
-
 
 }
 
@@ -486,19 +416,17 @@ function clearText(){
 // Copy
 // ======================================
 
-
 function copyResult(){
 
 
-    let text =
+    const text =
         document
         .getElementById("result")
         .innerText;
 
 
 
-    navigator
-    .clipboard
+    navigator.clipboard
     .writeText(text);
 
 
