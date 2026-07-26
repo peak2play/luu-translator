@@ -5,16 +5,11 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-        Luu Translator
-    </title>
+    <title>Luu Translator</title>
 
-
-    <link rel="stylesheet"
-          href="style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -25,20 +20,15 @@
 <div class="container">
 
 
-    <h1>
-        🪄 Luu Translator
-    </h1>
-
+    <h1>🪄 Luu Translator</h1>
 
     <p class="subtitle">
         แปลภาษาไทยเป็นภาษาลู
-        ด้วยระบบกฎเสียง
     </p>
 
 
 
     <div class="box">
-
 
         <label>
             ภาษาไทย
@@ -47,13 +37,11 @@
 
         <textarea
             id="thaiInput"
-            placeholder="พิมพ์ หรือวางข้อความที่นี่..."
+            placeholder="พิมพ์ หรือวางข้อความภาษาไทย..."
         ></textarea>
 
 
-
         <div class="buttons">
-
 
             <button onclick="pasteText()">
                 📋 Paste
@@ -64,7 +52,6 @@
                 ✖ Clear
             </button>
 
-
         </div>
 
 
@@ -73,9 +60,9 @@
 
 
 
-
-    <button class="translate"
-            onclick="translateLuu()">
+    <button
+        class="translate"
+        onclick="translateLuu()">
 
         แปลเป็นภาษาลู
 
@@ -104,23 +91,29 @@
 
 
 
-    <button class="copy"
-            onclick="copyResult()">
+
+    <button
+        class="copy"
+        onclick="copyResult()">
 
         📄 Copy
 
     </button>
 
 
-
 </div>
 
 
+
+
+
+<script src="thai_pronunciation.js"></script>
+
+<script src="thai_syllable.js"></script>
 
 <script src="app.js"></script>
 
 
 </body>
-
 
 </html>
