@@ -14,7 +14,6 @@ document.getElementById("stars");
 
 
 
-
 fetch("data/dictionary.json")
 
 .then(response=>response.json())
@@ -44,8 +43,7 @@ return "⭐".repeat(number)
 function translate(){
 
 
-let text =
-input.value.trim();
+let text=input.value.trim();
 
 
 
@@ -56,15 +54,13 @@ item=>item.thai===text
 
 
 
-
 if(found){
 
 
-output.value =
-found.luu;
+output.value=found.luu;
 
 
-stars.innerHTML =
+stars.innerHTML=
 showStars(found.confidence);
 
 
@@ -73,16 +69,13 @@ showStars(found.confidence);
 else{
 
 
-output.value =
-"ยังไม่มีข้อมูล";
+output.value="ยังไม่มีข้อมูล";
 
 
-stars.innerHTML =
-"☆☆☆☆☆";
+stars.innerHTML="☆☆☆☆☆";
 
 
 }
-
 
 
 }
@@ -105,19 +98,17 @@ document
 .onclick=function(){
 
 
-let temp =
-input.value;
+let temp=input.value;
 
 
-input.value =
-output.value;
+input.value=output.value;
 
 
-output.value =
-temp;
+output.value=temp;
 
 
 };
+
 
 
 
@@ -134,10 +125,8 @@ output.value
 );
 
 
-alert("คัดลอกแล้ว 💗");
-
-
 };
+
 
 
 
@@ -149,16 +138,15 @@ document
 .onclick=function(){
 
 
-let fav =
+let favorite =
 JSON.parse(
-localStorage.getItem("favorites")
+localStorage.getItem("favorite")
 )
-||
-[];
+||[];
 
 
 
-fav.push({
+favorite.push({
 
 thai:input.value,
 
@@ -169,12 +157,95 @@ luu:output.value
 
 
 localStorage.setItem(
-"favorites",
-JSON.stringify(fav)
+"favorite",
+JSON.stringify(favorite)
 );
 
 
 alert("บันทึกแล้ว 💗");
+
+
+};
+
+
+
+
+
+
+
+
+// microphone
+
+
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+
+
+if(SpeechRecognition){
+
+
+const recognition =
+new SpeechRecognition();
+
+
+recognition.lang="th-TH";
+
+
+recognition.onresult=function(event){
+
+
+input.value =
+event.results[0][0].transcript;
+
+
+translate();
+
+
+};
+
+
+
+document
+.getElementById("micBtn")
+.onclick=function(){
+
+recognition.start();
+
+};
+
+
+}
+
+
+
+
+
+
+// speaker
+
+
+document
+.getElementById("speakBtn")
+.onclick=function(){
+
+
+let speech =
+new SpeechSynthesisUtterance(
+output.value
+);
+
+
+speech.lang="th-TH";
+
+
+speech.rate=0.8;
+
+
+speechSynthesis.speak(
+speech
+);
 
 
 };
