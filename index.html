@@ -5,15 +5,14 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>🏳️‍🌈 Luu Translator</title>
 
 <link rel="stylesheet" href="style.css">
 
 <link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#ec6fa9">
 
 </head>
 
@@ -44,24 +43,36 @@
 
 
 
-
 <main>
 
 
 <section class="card">
+
 
 <div class="label">
 🇹🇭 ภาษาไทย
 </div>
 
 
+
+<div class="input-area">
+
 <textarea
 id="inputText"
-placeholder="พิมพ์คำหรือประโยค..."
+placeholder="พิมพ์หรือกดไมค์..."
 ></textarea>
 
 
+<button id="micBtn">
+🎙️
+</button>
+
+
+</div>
+
+
 </section>
+
 
 
 
@@ -83,10 +94,21 @@ placeholder="พิมพ์คำหรือประโยค..."
 
 
 
+<div class="input-area">
+
 <textarea
 id="outputText"
+readonly
 placeholder="ผลลัพธ์..."
-readonly></textarea>
+></textarea>
+
+
+<button id="speakBtn">
+🔊
+</button>
+
+
+</div>
 
 
 
@@ -96,9 +118,7 @@ readonly></textarea>
 
 
 
-
 <div class="buttons">
-
 
 <button id="copyBtn">
 📋 คัดลอก
@@ -121,24 +141,19 @@ readonly></textarea>
 
 
 
-
 <nav>
-
 
 <button class="active">
 🏠
 </button>
 
-
 <button>
 🕘
 </button>
 
-
 <button>
 💗
 </button>
-
 
 <button>
 ⚙️
@@ -153,24 +168,7 @@ readonly></textarea>
 
 
 
-
-
 <script src="app.js"></script>
-
-
-<script>
-
-
-if("serviceWorker" in navigator){
-
-navigator.serviceWorker.register(
-"service-worker.js"
-);
-
-}
-
-
-</script>
 
 
 </body>
