@@ -1,433 +1,94 @@
-// ======================================
-// Luu Translator
-// App Engine Version 4.0
-// ======================================
+// =====================================
+// Luu Translator App
+// =====================================
 
 
-let luuRules = [];
-
-
-
-
-// โหลดกฎ
-
-async function loadRules(){
-
-    try {
-
-        const response =
-            await fetch(
-                "data/luu_structure.json"
-            );
-
-
-        const data =
-            await response.json();
-
-
-        luuRules =
-            data.rules.sort(
-                (a,b)=>
-                a.priority - b.priority
-            );
-
-
-        console.log(
-            "Luu rules loaded"
-        );
-
-
-    } catch(error){
-
-        console.error(
-            "Cannot load rules",
-            error
-        );
-
-    }
-
-}
-
-
-loadRules();
-
-
-
-
-
-// ======================================
-// แปล
-// ======================================
-
-async function translateLuu(){
-
-
-    if(luuRules.length === 0){
-
-        await loadRules();
-
-    }
-
-
+// แปลภาษาไทยเป็นภาษาลู
+function translateLuu(){
 
     const input =
-        document
-        .getElementById("thaiInput")
-        .value
-        .trim();
+        document.getElementById("thaiInput").value;
 
 
+    const result =
+        document.getElementById("result");
 
-    if(!input){
 
-        document
-        .getElementById("result")
-        .innerText="";
+    if(!input.trim()){
+
+        result.innerText = "";
 
         return;
 
     }
 
 
-
-    const output =
-        translateSentence(input);
-
+    const luu =
+        translateLuuText(input);
 
 
-    document
-    .getElementById("result")
-    .innerText =
-    output;
-
+    result.innerText = luu;
 
 }
 
 
-
-
-
-
-
-// ======================================
-// ประโยค
-// ======================================
-
-function translateSentence(text){
-
-
-    const words =
-        text.split(/\s+/);
-
-
-
-    return words
-    .map(
-        word =>
-        translateWord(word)
-    )
-    .join(" ");
-
-
-}
-
-
-
-
-
-
-
-
-// ======================================
-// คำ
-// ======================================
-
-function translateWord(word){
-
-
-
-    const syllables =
-        splitThaiWord(word);
-
-
-
-    return syllables
-    .map(
-        s =>
-        translateSyllable(s)
-    )
-    .join(" ");
-
-
-}
-
-
-
-
-
-
-
-
-// ======================================
-// พยางค์
-// ======================================
-
-function translateSyllable(syllable){
-
-
-
-    const pronunciation =
-        analyzePronunciation(
-            syllable
-        );
-
-
-
-    const info =
-        analyzeSyllable(
-            syllable
-        );
-
-
-
-
-    // ใช้เสียงจริงช่วยตรวจ
-
-    if(
-        pronunciation.hasLeading
-    ){
-
-        info.initial =
-            pronunciation.soundInitial;
-
-    }
-
-
-
-
-
-    const rule =
-        selectRule(info);
-
-
-
-    if(!rule){
-
-        return syllable;
-
-    }
-
-
-
-    return createLuu(
-        info,
-        rule
-    );
-
-
-}
-
-
-
-
-
-
-
-// ======================================
-// เลือกกฎ
-// ======================================
-
-function selectRule(info){
-
-
-    for(
-        const rule of luuRules
-    ){
-
-        const c =
-            rule.condition;
-
-
-
-        if(
-            c.has_rl &&
-            c.has_u_vowel &&
-            info.hasRL &&
-            info.hasU
-        ){
-
-            return rule;
-
-        }
-
-
-
-        if(
-            c.has_u_vowel &&
-            info.hasU
-        ){
-
-            return rule;
-
-        }
-
-
-
-        if(
-            c.has_rl &&
-            info.hasRL
-        ){
-
-            return rule;
-
-        }
-
-
-
-        if(
-            c.default
-        ){
-
-            return rule;
-
-        }
-
-    }
-
-
-    return null;
-
-
-}
-
-
-
-
-
-
-
-
-// ======================================
-// สร้างภาษาลู
-// ======================================
-
-function createLuu(info,rule){
-
-
-
-    const original =
-        info.original;
-
-
-
-    const oldInitial =
-        info.initial;
-
-
-
-    const rest =
-        original.substring(1);
-
-
-
-    const firstPart =
-        rule.transform.replace_initial
-        +
-        rest;
-
-
-
-    const addVowel =
-        info.long
-        ?
-        rule.transform.added_vowel.long
-        :
-        rule.transform.added_vowel.short;
-
-
-
-    const secondPart =
-        oldInitial
-        +
-        addVowel
-        +
-        info.final;
-
-
-
-    return firstPart + secondPart;
-
-
-}
-
-
-
-
-
-
-
-// ======================================
-// Paste
-// ======================================
-
+// Paste จาก Clipboard
 async function pasteText(){
 
-    const text =
-        await navigator.clipboard
-        .readText();
+    try{
+
+        const text =
+            await navigator.clipboard.readText();
 
 
-    document
-    .getElementById("thaiInput")
-    .value = text;
+        document.getElementById("thaiInput").value = text;
+
+
+    }
+    catch(error){
+
+        alert("ไม่สามารถวางข้อความได้ กรุณาอนุญาตการเข้าถึง Clipboard");
+
+    }
 
 }
 
 
-
-
-
-
-
-// ======================================
-// Clear
-// ======================================
-
+// Clear ช่องบน
 function clearText(){
 
-    document
-    .getElementById("thaiInput")
-    .value="";
+    document.getElementById("thaiInput").value = "";
 
-
-    document
-    .getElementById("result")
-    .innerText="";
+    document.getElementById("result").innerText = "";
 
 }
 
 
+// Copy ผลลัพธ์
+async function copyResult(){
+
+    const result =
+        document.getElementById("result").innerText;
 
 
+    if(!result){
+
+        return;
+
+    }
 
 
+    try{
 
-// ======================================
-// Copy
-// ======================================
+        await navigator.clipboard.writeText(result);
 
-function copyResult(){
+        alert("Copy แล้ว");
 
+    }
+    catch(error){
 
-    const text =
-        document
-        .getElementById("result")
-        .innerText;
+        alert("ไม่สามารถ Copy ได้");
 
-
-
-    navigator.clipboard
-    .writeText(text);
-
+    }
 
 }
