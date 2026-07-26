@@ -1,0 +1,17 @@
+LuuTranslator-v2.1
+
+│
+├── index.html
+├── style.css
+├── app.js
+│
+├── data
+│   ├── dictionary.json
+│   ├── rules.json
+│   └── syllable.json   ⭐ เพิ่ม
+│
+├── assets
+│   └── logo.svg
+│
+├── manifest.json
+└── service-worker.js
