@@ -1,25 +1,49 @@
+// ======================================
 // Luu Translator
-// Rule Engine Version 1.0
+// App Engine Version 3.0
+// ======================================
 
 
-let luuRules = null;
+let luuRules = [];
 
 
-// โหลดกฎภาษาลู
-async function loadRules() {
 
-    try {
 
-        const response = await fetch("data/luu_structure.json");
+// ======================================
+// Load Rule
+// ======================================
 
-        luuRules = await response.json();
+async function loadRules(){
 
-        console.log("Luu rules loaded");
+    try{
 
-    } catch (error) {
+        const response =
+            await fetch(
+                "data/luu_structure.json"
+            );
+
+
+        const data =
+            await response.json();
+
+
+        luuRules =
+            data.rules.sort(
+                (a,b)=>
+                a.priority-b.priority
+            );
+
+
+        console.log(
+            "Luu Rule Loaded"
+        );
+
+
+    }
+
+    catch(error){
 
         console.error(
-            "Cannot load luu_structure.json",
             error
         );
 
@@ -28,35 +52,45 @@ async function loadRules() {
 }
 
 
+
 loadRules();
 
 
 
-// ----------------------------
-// ปุ่มแปล
-// ----------------------------
-
-async function translateLuu() {
 
 
-    if (!luuRules) {
+
+
+// ======================================
+// Translate Button
+// ======================================
+
+async function translateLuu(){
+
+
+    if(
+        luuRules.length===0
+    ){
 
         await loadRules();
 
     }
 
 
-    const input =
-        document.getElementById("thaiInput")
+
+    let text =
+        document
+        .getElementById("thaiInput")
         .value
         .trim();
 
 
 
-    if (!input) {
+    if(!text){
 
-        document.getElementById("result")
-        .innerText = "";
+        document
+        .getElementById("result")
+        .innerText="";
 
         return;
 
@@ -64,91 +98,116 @@ async function translateLuu() {
 
 
 
-    const result =
-        convertText(input);
+    let result =
+        translateSentence(text);
 
 
 
-    document.getElementById("result")
-    .innerText = result;
+    document
+    .getElementById("result")
+    .innerText=result;
 
 
 }
 
 
 
-// ----------------------------
-// แปลงข้อความ
-// ----------------------------
-
-function convertText(text) {
-
-
-    // แยกคำด้วยช่องว่าง
-
-    const words =
-        text.split(/\s+/);
 
 
 
-    let output = [];
+
+
+// ======================================
+// Translate Sentence
+// ======================================
+
+
+function translateSentence(sentence){
+
+
+    let words =
+        sentence.split(/\s+/);
 
 
 
-    words.forEach(word => {
+    return words
+    .map(
+        word =>
+        translateWord(word)
+    )
+    .join(" ");
 
 
-        output.push(
-            convertWord(word)
+}
+
+
+
+
+
+
+
+
+// ======================================
+// Translate Word
+// ======================================
+
+
+function translateWord(word){
+
+
+
+    let syllables =
+        splitThaiWord(word);
+
+
+
+    return syllables
+    .map(
+        syllable =>
+        translateSyllable(syllable)
+    )
+    .join(" ");
+
+
+}
+
+
+
+
+
+
+
+
+// ======================================
+// Translate Syllable
+// ======================================
+
+
+function translateSyllable(syllable){
+
+
+    let info =
+        analyzeSyllable(
+            syllable
         );
 
 
-    });
-
-
-
-    return output.join(" ");
-
-
-}
-
-
-
-// ----------------------------
-// แปลงคำ
-// ----------------------------
-
-function convertWord(word) {
-
-
-    /*
-        ขั้นนี้เป็น Prototype
-
-        ต่อไปจะเพิ่ม:
-        - Thai syllable analyzer
-        - vowel detector
-        - tone detector
-        - final consonant detector
-        - cluster detector
-
-    */
-
 
     let rule =
-        selectRule(word);
+        selectRule(info);
 
 
 
-    if (!rule) {
+    if(!rule){
 
-        return word;
+        return syllable;
 
     }
 
 
 
-    return applyRule(
-        word,
+    return createLuu(
+        info,
         rule
     );
 
@@ -157,36 +216,60 @@ function convertWord(word) {
 
 
 
-// ----------------------------
-// เลือกกฎ
-// ----------------------------
-
-function selectRule(word) {
-
-
-    const rules =
-        luuRules.rules
-        .sort(
-            (a,b)=>
-            a.priority-b.priority
-        );
 
 
 
-    for (let rule of rules) {
 
 
-        const condition =
+// ======================================
+// Select Rule
+// ======================================
+
+
+function selectRule(info){
+
+
+
+    for(
+        let rule of luuRules
+    ){
+
+
+
+        let c =
             rule.condition;
 
 
 
-        // มี ร หรือ ล
 
-        if (
-            condition.has_rl &&
-            /[รล]/.test(word)
-        ) {
+
+        // ร ล + อุ อู
+
+        if(
+
+            c.has_rl &&
+            c.has_u_vowel &&
+            info.hasRL &&
+            info.hasU
+
+        ){
+
+            return rule;
+
+        }
+
+
+
+
+
+        // อุ อู
+
+        if(
+
+            c.has_u_vowel &&
+            info.hasU
+
+        ){
 
             return rule;
 
@@ -194,24 +277,30 @@ function selectRule(word) {
 
 
 
-        // มี อุ อู
 
-        if (
-            condition.has_u_vowel &&
-            /[ุู]/.test(word)
-        ) {
+
+        // ร ล
+
+        if(
+
+            c.has_rl &&
+            info.hasRL
+
+        ){
 
             return rule;
 
         }
+
+
 
 
 
         // default
 
-        if (
-            condition.default
-        ) {
+        if(
+            c.default
+        ){
 
             return rule;
 
@@ -229,50 +318,68 @@ function selectRule(word) {
 
 
 
-// ----------------------------
-// ใช้กฎสร้างคำ
-// ----------------------------
 
-function applyRule(word, rule) {
+
+
+
+
+// ======================================
+// Create Luu Word
+// ======================================
+
+
+function createLuu(info,rule){
+
+
+
+    let original =
+        info.original;
+
 
 
     let first =
-        word.charAt(0);
+        info.initial;
 
 
 
-    let rest =
-        word.substring(1);
+    let remaining =
+        original.substring(1);
 
 
 
-    let newFirst =
-        rule.transform.replace_initial;
 
 
+    // พยางค์แรก
 
     let firstPart =
-        newFirst + rest;
+        rule.transform.replace_initial
+        +
+        remaining;
 
 
+
+
+
+    // พยางค์สอง
 
     let vowel =
-        detectVowel(word);
-
-
-
-    let addVowel =
-        chooseAddedVowel(
-            vowel,
+        getAddedVowel(
+            info,
             rule
         );
 
 
 
+
+
     let secondPart =
-        first +
-        addVowel +
-        getFinal(word);
+        first
+        +
+        vowel
+        +
+        info.final;
+
+
 
 
 
@@ -283,60 +390,20 @@ function applyRule(word, rule) {
 
 
 
-// ----------------------------
-// ตรวจสระ
-// ----------------------------
-
-function detectVowel(word) {
-
-
-    const longVowels =
-        [
-            "า",
-            "ี",
-            "ื",
-            "ู",
-            "เ",
-            "แ",
-            "โ",
-            "อ",
-            "เอ",
-            "เอีย",
-            "เอือ"
-        ];
 
 
 
-    for(
-        let v of longVowels
-    ){
-
-        if(word.includes(v)){
-
-            return "long";
-
-        }
-
-    }
 
 
-    return "short";
+// ======================================
+// Added Vowel
+// ======================================
 
 
-}
+function getAddedVowel(info,rule){
 
 
-
-// ----------------------------
-// เลือกสระเติม
-// ----------------------------
-
-function chooseAddedVowel(
-    type,
-    rule
-){
-
-    if(type==="long"){
+    if(info.long){
 
         return rule
         .transform
@@ -356,80 +423,83 @@ function chooseAddedVowel(
 
 
 
-// ----------------------------
-// ตัวสะกด
-// ----------------------------
-
-function getFinal(word){
-
-    const finals =
-        [
-            "ก",
-            "ข",
-            "ค",
-            "ง",
-            "ด",
-            "ต",
-            "น",
-            "ม",
-            "ย",
-            "ว",
-            "บ",
-            "ป"
-        ];
 
 
 
-    for(
-        let f of finals
-    ){
-
-        if(
-            word.endsWith(f)
-        ){
-
-            return f;
-
-        }
-
-    }
 
 
-    return "";
+// ======================================
+// Paste
+// ======================================
 
-}
-
-
-
-// ----------------------------
-// ปุ่ม Paste
-// ----------------------------
 
 async function pasteText(){
 
-    const text =
-        await navigator.clipboard.readText();
+
+    let text =
+        await navigator
+        .clipboard
+        .readText();
 
 
-    document.getElementById("thaiInput")
-    .value = text;
+
+    document
+    .getElementById("thaiInput")
+    .value=text;
 
 
 }
 
 
 
-// ----------------------------
-// ปุ่ม Clear
-// ----------------------------
+
+
+
+
+// ======================================
+// Clear
+// ======================================
+
 
 function clearText(){
 
-    document.getElementById("thaiInput")
-    .value = "";
+
+    document
+    .getElementById("thaiInput")
+    .value="";
 
 
-    document.getElementById("result")
-    .innerText = "";
+    document
+    .getElementById("result")
+    .innerText="";
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// Copy
+// ======================================
+
+
+function copyResult(){
+
+
+    let text =
+        document
+        .getElementById("result")
+        .innerText;
+
+
+
+    navigator
+    .clipboard
+    .writeText(text);
+
 
 }
