@@ -1,38 +1,47 @@
 [
-{
-"thai":"กิน",
-"luu":"ลินกุน",
-"confidence":5
-},
-
-{
-"thai":"ไป",
-"luu":"ไลปุย",
-"confidence":5
-},
-
-{
-"thai":"รัก",
-"luu":"ซักรุก",
-"confidence":5
-},
-
-{
-"thai":"ขอบใจ",
-"luu":"หลอบขูบไลจุย",
-"confidence":4
-},
-
-{
-"thai":"สวย",
-"luu":"หลวยสุย",
-"confidence":4
-},
-
-{
-"thai":"กา",
-"luu":"ลากู",
-"confidence":5
-}
-
+  {
+    "thai": "ฉัน",
+    "luu": "ลันฉู",
+    "confidence": 4
+  },
+  {
+    "thai": "กิน",
+    "luu": "ลินกุน",
+    "confidence": 5
+  },
+  {
+    "thai": "ข้าว",
+    "luu": "ล้าวขาว",
+    "confidence": 4
+  },
+  {
+    "thai": "ไป",
+    "luu": "ไลปุย",
+    "confidence": 5
+  },
+  {
+    "thai": "รัก",
+    "luu": "ซักรุก",
+    "confidence": 5
+  },
+  {
+    "thai": "เธอ",
+    "luu": "เลอเธอ",
+    "confidence": 3
+  },
+  {
+    "thai": "ขอบใจ",
+    "luu": "หลอบขูบไลจุย",
+    "confidence": 5
+  },
+  {
+    "thai": "สวย",
+    "luu": "หลวยสุย",
+    "confidence": 5
+  },
+  {
+    "thai": "กา",
+    "luu": "ลากู",
+    "confidence": 5
+  }
 ]
