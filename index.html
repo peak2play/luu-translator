@@ -2,86 +2,125 @@
 <html lang="th">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🏳️‍🌈 Luu Translator</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="style.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Luu Translator
+    </title>
+
+
+    <link rel="stylesheet"
+          href="style.css">
 
 </head>
 
+
 <body>
 
-<div class="app">
 
-<header>
-<h1>🏳️‍🌈 Luu Translator</h1>
-</header>
+<div class="container">
 
 
-<section class="translator-box">
-
-<h2>🇹🇭 ภาษาไทย</h2>
-
-<textarea 
-id="thaiInput"
-placeholder="พิมพ์ หรือวางข้อความภาษาไทย..."
-></textarea>
+    <h1>
+        🪄 Luu Translator
+    </h1>
 
 
-<div class="button-group">
+    <p class="subtitle">
+        แปลภาษาไทยเป็นภาษาลู
+        ด้วยระบบกฎเสียง
+    </p>
 
-<button id="pasteBtn">
-📋 Paste
-</button>
 
-<button id="clearBtn">
-🗑️ Clear
-</button>
+
+    <div class="box">
+
+
+        <label>
+            ภาษาไทย
+        </label>
+
+
+        <textarea
+            id="thaiInput"
+            placeholder="พิมพ์ หรือวางข้อความที่นี่..."
+        ></textarea>
+
+
+
+        <div class="buttons">
+
+
+            <button onclick="pasteText()">
+                📋 Paste
+            </button>
+
+
+            <button onclick="clearText()">
+                ✖ Clear
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+    <button class="translate"
+            onclick="translateLuu()">
+
+        แปลเป็นภาษาลู
+
+    </button>
+
+
+
+
+
+    <div class="box result-box">
+
+
+        <label>
+            ภาษาลู
+        </label>
+
+
+        <div id="result"
+             class="result">
+
+        </div>
+
+
+    </div>
+
+
+
+
+    <button class="copy"
+            onclick="copyResult()">
+
+        📄 Copy
+
+    </button>
+
+
 
 </div>
 
-</section>
-
-
-
-<section class="translator-box">
-
-<h2>🏳️‍🌈 ภาษาลู</h2>
-
-<textarea
-id="luuOutput"
-placeholder="ผลลัพธ์ภาษาลู..."
-readonly
-></textarea>
-
-
-<button id="copyBtn">
-📋 Copy
-</button>
-
-
-</section>
-
-
-
-<div class="confidence">
-
-ความมั่นใจ
-
-<div id="stars">
-☆☆☆☆☆
-</div>
-
-</div>
-
-
-</div>
 
 
 <script src="app.js"></script>
 
+
 </body>
+
 
 </html>
