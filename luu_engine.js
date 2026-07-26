@@ -1,157 +1,48 @@
 // =====================================
-// Luu Translator Engine V0.4
-// Thai syllable structure parser
+// Luu Engine V0.5
+// Build syllable instead of replace text
 // =====================================
 
 
-// ------------------------------
-// พยัญชนะควบกล้ำ
-// ------------------------------
+// ----------------------------
+// วิเคราะห์พยางค์พื้นฐาน
+// ----------------------------
 
-const CLUSTERS = [
-    "กร","กล","กว",
-    "คร","คล","คว",
-    "ตร",
-    "ปร","ปล",
-    "พร","พล",
-    "ทร"
-];
+function parseThaiSyllable(word){
 
-
-// ------------------------------
-// สระเสียงยาว
-// ------------------------------
-
-const LONG_VOWELS = [
-    "า",
-    "ี",
-    "ู",
-    "ื",
-    "อ",
-    "โอ",
-    "เอ",
-    "แอ",
-    "ไอ",
-    "ใอ",
-    "เอา",
-    "อำ",
-    "เอีย",
-    "เอือ",
-    "อัว"
-];
-
-
-// ------------------------------
-// สระเสียงสั้น
-// ------------------------------
-
-const SHORT_VOWELS = [
-    "ะ",
-    "ั",
-    "ิ",
-    "ึ",
-    "ุ"
-];
-
-
-
-// ------------------------------
-// แยกคำเป็นพยางค์
-// ------------------------------
-
-function splitSyllables(word){
-
-
-    // คำที่แยกได้แน่นอน
-
-    const known = {
-
-        "เปียโน":[
-            "เปีย",
-            "โน"
-        ],
-
-        "กะเทย":[
-            "กะ",
-            "เทย"
-        ],
-
-        "ตอแหล":[
-            "ตอ",
-            "แหล"
-        ],
-
-        "เครื่องดนตรี":[
-            "เครื่อง",
-            "ดน",
-            "ตรี"
-        ]
-
+    let result = {
+        original: word,
+        initial: "",
+        vowel: "",
+        final: "",
+        short: false
     };
 
 
-    if(known[word]){
-
-        return known[word];
-
-    }
-
-
-    return [word];
-
-}
-
-
-
-// ------------------------------
-// วิเคราะห์พยางค์
-// ------------------------------
-
-function parseSyllable(word){
-
-
-    let data={
-
-        text:word,
-
-        initial:"",
-
-        vowel:"",
-
-        final:"",
-
-        tone:"",
-
-        short:false
-
-    };
+    const initials =
+    [
+        "กร","กล","กว",
+        "คร","คล","คว",
+        "ตร",
+        "ปร","ปล",
+        "พร","พล",
+        "ก","ข","ค","ง",
+        "จ","ช","ซ",
+        "ด","ต","ถ",
+        "ท","น",
+        "บ","ป","ผ",
+        "พ","ฟ",
+        "ม","ย",
+        "ร","ล",
+        "ว","ส","ห"
+    ];
 
 
+    for(let i of initials){
 
-    // วรรณยุกต์
+        if(word.startsWith(i)){
 
-    if(word.includes("่"))
-        data.tone="่";
-
-    if(word.includes("้"))
-        data.tone="้";
-
-    if(word.includes("๊"))
-        data.tone="๊";
-
-    if(word.includes("๋"))
-        data.tone="๋";
-
-
-
-    // พยัญชนะต้น
-
-    for(let c of CLUSTERS){
-
-        if(word.startsWith(c)){
-
-            data.initial=c;
-
+            result.initial = i;
             break;
 
         }
@@ -159,10 +50,70 @@ function parseSyllable(word){
     }
 
 
-    if(!data.initial){
 
-        data.initial =
-            word[0];
+    // สระนำ
+
+    if(word.includes("เอีย")){
+
+        result.vowel="เอีย";
+
+    }
+    else if(word.includes("เอือ")){
+
+        result.vowel="เอือ";
+
+    }
+    else if(word.includes("อู")){
+
+        result.vowel="อู";
+
+    }
+    else if(word.includes("ู")){
+
+        result.vowel="อู";
+
+    }
+    else if(word.includes("ี")){
+
+        result.vowel="อี";
+
+    }
+    else if(word.includes("า")){
+
+        result.vowel="อา";
+
+    }
+    else if(word.includes("เ")){
+
+        result.vowel="เอ";
+
+    }
+    else if(word.includes("แ")){
+
+        result.vowel="แอ";
+
+    }
+    else if(word.includes("โ")){
+
+        result.vowel="โอ";
+
+    }
+    else if(
+        word.includes("ะ") ||
+        word.includes("ั") ||
+        word.includes("ิ") ||
+        word.includes("ุ")
+    ){
+
+        result.vowel="สั้น";
+        result.short=true;
+
+    }
+    else{
+
+        // สระอะโดยไม่เขียน
+        result.vowel="สั้น";
+        result.short=true;
 
     }
 
@@ -170,7 +121,8 @@ function parseSyllable(word){
 
     // ตัวสะกด
 
-    const finals=[
+    const finals =
+    [
         "ก",
         "ง",
         "ด",
@@ -190,157 +142,80 @@ function parseSyllable(word){
             word.length>1
         ){
 
-            data.final=f;
+            result.final=f;
 
         }
 
     }
 
 
-
-    // สระ
-
-    for(let v of LONG_VOWELS){
-
-        if(word.includes(v)){
-
-            data.vowel=v;
-            break;
-
-        }
-
-    }
-
-
-    if(!data.vowel){
-
-        for(let v of SHORT_VOWELS){
-
-            if(word.includes(v)){
-
-                data.vowel=v;
-                break;
-
-            }
-
-        }
-
-    }
-
-
-
-    // สระแฝง
-
-    if(!data.vowel){
-
-        data.vowel="ะ";
-
-    }
-
-
-
-    data.short =
-        SHORT_VOWELS.includes(data.vowel)
-        ||
-        data.vowel==="ะ";
-
-
-
-    return data;
+    return result;
 
 }
 
 
 
-// ------------------------------
-// แทนพยัญชนะต้น
-// ------------------------------
 
-function replaceInitial(word,oldChar,newChar){
-
-
-    return word.replace(
-        oldChar,
-        newChar
-    );
-
-}
-
-
-
-// ------------------------------
+// ----------------------------
 // สร้างพยางค์ลู
-// ------------------------------
+// ----------------------------
 
-function translateSyllable(word){
+function buildLuu(syl){
 
-
-    let d =
-        parseSyllable(word);
-
+    let p =
+        parseThaiSyllable(syl);
 
 
-    let first="";
-    let second="";
+    let firstInitial =
+        p.initial;
+
+
+    let luuInitial =
+        (p.initial==="ร" ||
+         p.initial==="ล")
+        ?
+        "ซ"
+        :
+        "ล";
 
 
 
-    // กรณี ร ล
+    // พยางค์แรก
 
-    if(
-        d.initial==="ร"
-        ||
-        d.initial==="ล"
-    ){
+    let first =
+        luuInitial
+        +
+        syl.substring(
+            p.initial.length
+        );
 
-        first =
-            replaceInitial(
-                word,
-                d.initial,
-                "ซ"
-            );
+
+
+    // พยางค์ที่สอง
+
+    let second =
+        firstInitial;
+
+
+
+    if(p.short){
+
+        second += "ุ";
 
     }
-
     else{
 
-        first =
-            replaceInitial(
-                word,
-                d.initial,
-                "ล"
-            );
+        second += "ู";
 
     }
 
 
 
-    // เลือกเสียงเติม
+    if(p.final){
 
-    let addVowel =
-        d.short
-        ?
-        "ุ"
-        :
-        "ู";
-
-
-
-    second =
-        d.initial
-        +
-        addVowel;
-
-
-
-    // ใส่ตัวสะกดกลับ
-
-    if(d.final){
-
-        second += d.final;
+        second += p.final;
 
     }
-
 
 
     return first + second;
@@ -349,44 +224,76 @@ function translateSyllable(word){
 
 
 
-// ------------------------------
-// แปลคำ
-// ------------------------------
 
-function translateWord(word){
+// ----------------------------
+// แยกพยางค์
+// ----------------------------
+
+function splitSyllables(word){
 
 
-    return splitSyllables(word)
+    const dictionary = {
 
-        .map(
-            s =>
-            translateSyllable(s)
-        )
+        "กะเทย":
+        [
+            "กะ",
+            "เทย"
+        ],
 
-        .join(" ");
+        "เปียโน":
+        [
+            "เปีย",
+            "โน"
+        ]
+
+    };
+
+
+    if(dictionary[word]){
+
+        return dictionary[word];
+
+    }
+
+
+    return [word];
 
 }
 
 
 
-// ------------------------------
+// ----------------------------
+// แปลคำ
+// ----------------------------
+
+function translateWord(word){
+
+    return splitSyllables(word)
+
+    .map(
+        x=>buildLuu(x)
+    )
+
+    .join(" ");
+
+}
+
+
+
+// ----------------------------
 // แปลข้อความ
-// ------------------------------
+// ----------------------------
 
 function translateLuuText(text){
 
-
     return text
 
-        .trim()
+    .split(/\s+/)
 
-        .split(/\s+/)
+    .map(
+        word=>translateWord(word)
+    )
 
-        .map(
-            w =>
-            translateWord(w)
-        )
-
-        .join(" ");
+    .join(" ");
 
 }
