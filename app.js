@@ -2,11 +2,11 @@ let dictionary = [];
 
 
 
-const input =
+const thaiInput =
 document.getElementById("thaiInput");
 
 
-const output =
+const luuOutput =
 document.getElementById("luuOutput");
 
 
@@ -19,11 +19,11 @@ document.getElementById("stars");
 
 fetch("data/dictionary.json")
 
-.then(response=>response.json())
+.then(response => response.json())
 
-.then(data=>{
+.then(data => {
 
-dictionary=data;
+dictionary = data;
 
 });
 
@@ -32,24 +32,21 @@ dictionary=data;
 
 
 
-
-function translate(){
+function translateLuu(){
 
 
 let text =
-input.value.trim();
+thaiInput.value.trim();
 
 
 
 if(text===""){
 
-
-output.value="";
+luuOutput.value="";
 
 stars.innerHTML="☆☆☆☆☆";
 
 return;
-
 
 }
 
@@ -62,8 +59,7 @@ text.split(/\s+/);
 
 let result=[];
 
-let score=[];
-
+let scores=[];
 
 
 
@@ -72,64 +68,55 @@ words.forEach(word=>{
 
 let found =
 dictionary.find(
-item=>item.thai===word
+item => item.thai === word
 );
 
 
 
 if(found){
 
-
 result.push(found.luu);
 
-
-score.push(
-found.confidence
-);
-
+scores.push(found.confidence || 0);
 
 }
 
-else{
-
+else {
 
 result.push(word);
 
-score.push(0);
-
+scores.push(0);
 
 }
-
 
 
 });
 
 
 
-
-
-output.value =
+luuOutput.value =
 result.join(" ");
 
 
 
-
-
-let avg =
-score.reduce(
+let average =
+scores.reduce(
 (a,b)=>a+b,
 0
-)
-/score.length;
+) / scores.length;
+
+
+
+let star =
+Math.round(average);
 
 
 
 stars.innerHTML =
-"⭐".repeat(Math.round(avg))
+"⭐".repeat(star)
 +
-"☆".repeat(
-5-Math.round(avg)
-);
+"☆".repeat(5-star);
+
 
 
 }
@@ -137,16 +124,10 @@ stars.innerHTML =
 
 
 
-
-
-
-input.addEventListener(
+thaiInput.addEventListener(
 "input",
-translate
+translateLuu
 );
-
-
-
 
 
 
@@ -159,20 +140,29 @@ document
 .onclick = async()=>{
 
 
+try {
+
+
 let text =
 await navigator.clipboard.readText();
 
 
-input.value=text;
+thaiInput.value=text;
 
 
-translate();
+translateLuu();
+
+
+}
+
+catch(error){
+
+alert("ไม่สามารถวางข้อความได้ กรุณาอนุญาต Clipboard");
+
+}
 
 
 };
-
-
-
 
 
 
@@ -182,12 +172,12 @@ translate();
 
 document
 .getElementById("clearBtn")
-.onclick=()=>{
+.onclick = ()=>{
 
 
-input.value="";
+thaiInput.value="";
 
-output.value="";
+luuOutput.value="";
 
 stars.innerHTML="☆☆☆☆☆";
 
@@ -198,18 +188,15 @@ stars.innerHTML="☆☆☆☆☆";
 
 
 
-
-
-
 // Copy
 
 document
 .getElementById("copyBtn")
-.onclick=()=>{
+.onclick = async()=>{
 
 
-navigator.clipboard.writeText(
-output.value
+await navigator.clipboard.writeText(
+luuOutput.value
 );
 
 
