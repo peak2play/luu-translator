@@ -4,10 +4,7 @@
 // =====================================
 
 
-// -----------------------------
-// Split word
-// -----------------------------
-
+// แยกคำ
 function splitWords(text){
 
     const dictionary = {
@@ -20,7 +17,7 @@ function splitWords(text){
     };
 
 
-    let result=[];
+    let result = [];
 
 
     for(let w of text.trim().split(/\s+/)){
@@ -29,8 +26,7 @@ function splitWords(text){
 
             result.push(...dictionary[w]);
 
-        }
-        else{
+        } else {
 
             result.push(w);
 
@@ -45,14 +41,10 @@ function splitWords(text){
 
 
 
-// -----------------------------
-// Split syllable
-// -----------------------------
-
+// แยกพยางค์
 function splitSyllables(word){
 
-
-    const dictionary={
+    const dictionary = {
 
         "กะเทย":[
             "กะ",
@@ -73,12 +65,11 @@ function splitSyllables(word){
 
 
 
-// -----------------------------
-// Parser
-// -----------------------------
-
+// วิเคราะห์พยางค์
 function parseThaiSyllable(word){
 
+
+    // คำพิเศษ
 
     if(word==="เปีย"){
 
@@ -114,7 +105,7 @@ function parseThaiSyllable(word){
 
 
 
-    let data={
+    let data = {
 
         initial:"",
         vowel:"",
@@ -124,9 +115,13 @@ function parseThaiSyllable(word){
 
 
 
+    let body = word;
+
+
+
     // ตัวสะกด
 
-    let finals=[
+    const finals = [
         "ก",
         "ง",
         "ด",
@@ -137,24 +132,22 @@ function parseThaiSyllable(word){
     ];
 
 
-    let body=word;
-
 
     for(let f of finals){
 
         if(
             word.endsWith(f)
             &&
-            word.length>1
+            word.length > 1
         ){
 
-            data.final=f;
+            data.final = f;
 
             body =
-            word.substring(
-                0,
-                word.length-1
-            );
+                word.substring(
+                    0,
+                    word.length - 1
+                );
 
             break;
 
@@ -164,24 +157,41 @@ function parseThaiSyllable(word){
 
 
 
+    // พยัญชนะต้น
+
     data.initial =
         body[0] || "";
 
 
 
-    if(body.includes("ะ")){
+    // ตัดพยัญชนะออกเพื่อดูสระ
+
+    let vowelPart =
+        body.substring(1);
+
+
+
+    // สระ
+
+    if(word.includes("ะ")){
 
         data.vowel="อะ";
 
     }
 
-    else if(body.includes("ู")){
+    else if(word.includes("ู")){
 
         data.vowel="อู";
 
     }
 
-    else{
+    else if(word.includes("า")){
+
+        data.vowel="อา";
+
+    }
+
+    else {
 
         data.vowel="อะ";
 
@@ -195,10 +205,7 @@ function parseThaiSyllable(word){
 
 
 
-// -----------------------------
-// Build Luu
-// -----------------------------
-
+// สร้างภาษูลู
 function buildLuu(data){
 
 
@@ -223,6 +230,8 @@ function buildLuu(data){
     switch(data.vowel){
 
 
+        // สระอะ
+
         case "อะ":
 
 
@@ -245,8 +254,7 @@ function buildLuu(data){
                     data.final;
 
 
-            }
-            else{
+            } else {
 
 
                 first =
@@ -268,40 +276,22 @@ function buildLuu(data){
 
 
 
-        case "เอีย":
+        // สระอู
 
-            first="เลีย";
+        case "อู":
 
-            second =
-                data.initial
+
+            first =
+                firstInitial
                 +
                 "ู";
 
-            break;
-
-
-
-        case "โอ":
-
-            first="โล";
 
             second =
                 data.initial
                 +
-                "ู";
+                "ุ";
 
-            break;
-
-
-
-        case "เอย":
-
-            first="เลย";
-
-            second =
-                data.initial
-                +
-                "ุย";
 
             break;
 
@@ -309,14 +299,22 @@ function buildLuu(data){
 
         default:
 
-            first=firstInitial;
-            second=data.initial+"ู";
+
+            first =
+                firstInitial;
+
+
+            second =
+                data.initial
+                +
+                "ู";
+
 
     }
 
 
 
-    // สำคัญ: ไม่ใส่ช่องว่างตรงนี้
+    // สำคัญ: ไม่มีช่องว่างระหว่าง 2 ส่วน
 
     return first + second;
 
@@ -324,10 +322,7 @@ function buildLuu(data){
 
 
 
-// -----------------------------
-// Translate
-// -----------------------------
-
+// แปลพยางค์
 function translateSyllable(word){
 
     return buildLuu(
@@ -338,12 +333,13 @@ function translateSyllable(word){
 
 
 
+// แปลคำ
 function translateWord(word){
 
     return splitSyllables(word)
 
     .map(
-        s=>translateSyllable(s)
+        s => translateSyllable(s)
     )
 
     .join(" ");
@@ -352,13 +348,13 @@ function translateWord(word){
 
 
 
+// แปลข้อความ
 function translateLuuText(text){
-
 
     return splitWords(text)
 
     .map(
-        w=>translateWord(w)
+        w => translateWord(w)
     )
 
     .join(" ");
