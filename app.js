@@ -13,10 +13,16 @@ const stars =
 document.getElementById("stars");
 
 
+const notice =
+document.getElementById("notice");
+
+
+
+
 
 fetch("data/dictionary.json")
 
-.then(response=>response.json())
+.then(r=>r.json())
 
 .then(data=>{
 
@@ -28,11 +34,11 @@ dictionary=data;
 
 
 
-function showStars(number){
+function star(score){
 
-return "⭐".repeat(number)
+return "⭐".repeat(score)
 +
-"☆".repeat(5-number);
+"☆".repeat(5-score);
 
 }
 
@@ -40,16 +46,51 @@ return "⭐".repeat(number)
 
 
 
-function translate(){
 
 
-let text=input.value.trim();
+function translateSentence(){
 
+
+let sentence =
+input.value.trim();
+
+
+
+if(!sentence){
+
+output.value="";
+
+stars.innerHTML="☆☆☆☆☆";
+
+notice.innerHTML="";
+
+return;
+
+}
+
+
+
+
+let words =
+sentence.split(/\s+/);
+
+
+
+let result=[];
+
+let scores=[];
+
+let missing=[];
+
+
+
+
+words.forEach(word=>{
 
 
 let found =
 dictionary.find(
-item=>item.thai===text
+item=>item.thai===word
 );
 
 
@@ -57,11 +98,10 @@ item=>item.thai===text
 if(found){
 
 
-output.value=found.luu;
+result.push(found.luu);
 
 
-stars.innerHTML=
-showStars(found.confidence);
+scores.push(found.confidence);
 
 
 }
@@ -69,16 +109,84 @@ showStars(found.confidence);
 else{
 
 
-output.value="ยังไม่มีข้อมูล";
+result.push(word);
 
 
-stars.innerHTML="☆☆☆☆☆";
+missing.push(word);
+
+
+}
+
+
+});
+
+
+
+
+
+output.value =
+result.join(" ");
+
+
+
+
+if(scores.length){
+
+
+let avg =
+Math.round(
+
+scores.reduce(
+(a,b)=>a+b
+)
+/scores.length
+
+);
+
+
+stars.innerHTML =
+star(avg);
+
+
+}
+
+else{
+
+
+stars.innerHTML =
+"☆☆☆☆☆";
+
+
+}
+
+
+
+
+
+if(missing.length){
+
+
+notice.innerHTML =
+"📝 ยังไม่มีข้อมูล: "
++
+missing.join(", ");
+
+
+}
+
+else{
+
+
+notice.innerHTML =
+"✨ แปลครบทุกคำ";
 
 
 }
 
 
 }
+
+
 
 
 
@@ -86,28 +194,8 @@ stars.innerHTML="☆☆☆☆☆";
 
 input.addEventListener(
 "input",
-translate
+translateSentence
 );
-
-
-
-
-
-document
-.getElementById("switchBtn")
-.onclick=function(){
-
-
-let temp=input.value;
-
-
-input.value=output.value;
-
-
-output.value=temp;
-
-
-};
 
 
 
@@ -138,27 +226,18 @@ document
 .onclick=function(){
 
 
-let favorite =
-JSON.parse(
-localStorage.getItem("favorite")
-)
-||[];
+localStorage.setItem(
 
+"favorite",
 
-
-favorite.push({
+JSON.stringify({
 
 thai:input.value,
 
 luu:output.value
 
-});
+})
 
-
-
-localStorage.setItem(
-"favorite",
-JSON.stringify(favorite)
 );
 
 
@@ -173,79 +252,18 @@ alert("บันทึกแล้ว 💗");
 
 
 
-
-// microphone
-
-
-const SpeechRecognition =
-window.SpeechRecognition ||
-window.webkitSpeechRecognition;
-
-
-
-if(SpeechRecognition){
-
-
-const recognition =
-new SpeechRecognition();
-
-
-recognition.lang="th-TH";
-
-
-recognition.onresult=function(event){
-
-
-input.value =
-event.results[0][0].transcript;
-
-
-translate();
-
-
-};
-
-
-
 document
-.getElementById("micBtn")
-.onclick=function(){
-
-recognition.start();
-
-};
-
-
-}
-
-
-
-
-
-
-// speaker
-
-
-document
-.getElementById("speakBtn")
+.getElementById("switchBtn")
 .onclick=function(){
 
 
-let speech =
-new SpeechSynthesisUtterance(
-output.value
-);
+let temp=input.value;
 
 
-speech.lang="th-TH";
+input.value=output.value;
 
 
-speech.rate=0.8;
-
-
-speechSynthesis.speak(
-speech
-);
+output.value=temp;
 
 
 };
