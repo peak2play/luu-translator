@@ -1,190 +1,622 @@
-{
-  "version": "1.0",
-
-  "name": "Luu Translator Rule Structure",
-
-  "description": "กฎการแปลงภาษาไทยเป็นภาษาลูแบบ Rule Based",
-
-  "rules": [
-
-    {
-      "id": "special_rl_u",
-      "priority": 1,
-      "description": "คำที่มี ร ล และมีสระ อุ อู",
-
-      "condition": {
-        "has_rl": true,
-        "has_u_vowel": true
-      },
-
-      "transform": {
-        "replace_initial": "ซ",
-        "added_vowel": {
-          "short": "ิ",
-          "long": "ี"
-        },
-        "keep_tone": true,
-        "keep_final": true
-      }
-    },
+// ======================================
+// Luu Translator
+// Rule Engine Version 2.0
+// ======================================
 
 
-    {
-      "id": "u_vowel",
-      "priority": 2,
-      "description": "คำที่มีสระ อุ อู",
-
-      "condition": {
-        "has_u_vowel": true
-      },
-
-      "transform": {
-        "replace_initial": "หล",
-        "added_vowel": {
-          "short": "ิ",
-          "long": "ี"
-        },
-        "keep_tone": true,
-        "keep_final": true
-      },
-
-      "examples": [
-        {
-          "thai": "กูด",
-          "luu": "หลูดกีด"
-        },
-        {
-          "thai": "สุก",
-          "luu": "หลุกสิก"
-        }
-      ]
-    },
+let luuRules = [];
 
 
-    {
-      "id": "rl",
-      "priority": 3,
-      "description": "คำที่มี ร หรือ ล",
+// โหลดกฎ
 
-      "condition": {
-        "has_rl": true
-      },
+async function loadRules(){
 
-      "transform": {
-        "replace_initial": "ซ",
-        "added_vowel": {
-          "short": "ุ",
-          "long": "ู"
-        },
-        "keep_tone": true,
-        "keep_final": true
-      },
+    try{
 
-      "examples": [
-        {
-          "thai": "รัก",
-          "luu": "ซักรุก"
-        },
-        {
-          "thai": "ลอง",
-          "luu": "ซองลูง"
-        }
-      ]
-    },
+        const response =
+            await fetch(
+                "data/luu_structure.json"
+            );
 
 
-    {
-      "id": "normal",
-      "priority": 4,
-      "description": "คำทั่วไป",
+        const data =
+            await response.json();
 
-      "condition": {
-        "default": true
-      },
 
-      "transform": {
-        "replace_initial": "ล",
+        luuRules =
+            data.rules.sort(
+                (a,b)=>
+                a.priority-b.priority
+            );
 
-        "added_vowel": {
-          "short": "ุ",
-          "long": "ู"
-        },
 
-        "keep_tone": true,
-        "keep_final": true
-      },
+        console.log(
+            "Luu Rule Loaded"
+        );
 
-      "examples": [
-        {
-          "thai": "เก้ง",
-          "luu": "เล้งกุ้ง"
-        },
-        {
-          "thai": "แมว",
-          "luu": "แลวมู"
-        },
-        {
-          "thai": "เทป",
-          "luu": "เลปทูป"
-        }
-      ]
+
+    }catch(error){
+
+        console.error(
+            "Load Rule Error",
+            error
+        );
+
     }
 
-  ],
+}
 
 
-  "future_rules": [
+loadRules();
 
-    {
-      "id": "cluster",
-      "description": "พยัญชนะควบกล้ำ เช่น เพลง ปลา"
-    },
 
-    {
-      "id": "leading_consonant",
-      "description": "อักษรนำ เช่น หนู หนัง"
-    },
 
-    {
-      "id": "multi_syllable",
-      "description": "คำหลายพยางค์"
-    },
 
-    {
-      "id": "compound_vowel",
-      "description": "สระประสม เช่น เอีย เอือ อัว"
+
+// ======================================
+// Main Translate
+// ======================================
+
+
+async function translateLuu(){
+
+
+    if(luuRules.length===0){
+
+        await loadRules();
+
     }
 
-  ],
+
+    const input =
+        document
+        .getElementById("thaiInput")
+        .value
+        .trim();
 
 
-  "examples": [
 
-    {
-      "input": "รัก",
-      "output": "ซักรุก"
-    },
+    if(!input){
 
-    {
-      "input": "กะเทย",
-      "output": "กะ เลยทุย"
-    },
+        document
+        .getElementById("result")
+        .innerText="";
 
-    {
-      "input": "เก่งมาก",
-      "output": "เล่งกุ่ง ลากมูก"
-    },
+        return;
 
-    {
-      "input": "ขอบใจ",
-      "output": "หลอบขูใลจู"
-    },
-
-    {
-      "input": "ซีดี",
-      "output": "ลีซู ลีดู"
     }
 
-  ]
+
+
+    const result =
+        translateSentence(input);
+
+
+
+    document
+    .getElementById("result")
+    .innerText=result;
+
+
+}
+
+
+
+
+
+
+// ======================================
+// แปลทั้งประโยค
+// ======================================
+
+
+function translateSentence(sentence){
+
+
+    let words =
+        sentence.split(/\s+/);
+
+
+
+    return words
+    .map(word=>{
+
+        return translateWord(word);
+
+    })
+    .join(" ");
+
+}
+
+
+
+
+
+// ======================================
+// แปลคำ
+// ======================================
+
+
+function translateWord(word){
+
+
+    // แยกพยางค์เบื้องต้น
+
+    let syllables =
+        splitThaiSyllable(word);
+
+
+
+    return syllables
+    .map(
+        s =>
+        translateSyllable(s)
+    )
+    .join("");
+
+}
+
+
+
+
+
+
+// ======================================
+// แยกพยางค์เบื้องต้น
+// ======================================
+
+
+function splitThaiSyllable(word){
+
+
+    /*
+        Prototype
+
+        ตัวเต็มจะเพิ่ม
+        Thai syllable analyzer
+
+    */
+
+
+    return [word];
+
+}
+
+
+
+
+
+
+// ======================================
+// แปลงพยางค์
+// ======================================
+
+
+function translateSyllable(syllable){
+
+
+
+    let rule =
+        findRule(syllable);
+
+
+
+    if(!rule){
+
+        return syllable;
+
+    }
+
+
+
+    return applyRule(
+        syllable,
+        rule
+    );
+
+}
+
+
+
+
+
+// ======================================
+// เลือก Rule
+// ======================================
+
+
+function findRule(word){
+
+
+    for(
+        let rule of luuRules
+    ){
+
+
+        let c =
+            rule.condition;
+
+
+
+        // ร ล + อุ อู
+
+        if(
+            c.has_rl &&
+            c.has_u_vowel &&
+            hasRL(word) &&
+            hasUVowel(word)
+        ){
+
+            return rule;
+
+        }
+
+
+
+
+
+        // อุ อู
+
+        if(
+            c.has_u_vowel &&
+            hasUVowel(word)
+        ){
+
+            return rule;
+
+        }
+
+
+
+
+
+        // ร ล
+
+        if(
+            c.has_rl &&
+            hasRL(word)
+        ){
+
+            return rule;
+
+        }
+
+
+
+
+
+        // default
+
+        if(
+            c.default
+        ){
+
+            return rule;
+
+        }
+
+
+    }
+
+
+
+    return null;
+
+}
+
+
+
+
+
+
+
+// ======================================
+// ตรวจ ร ล
+// ======================================
+
+
+function hasRL(word){
+
+    return /[รล]/.test(word);
+
+}
+
+
+
+
+
+// ======================================
+// ตรวจ อุ อู
+// ======================================
+
+
+function hasUVowel(word){
+
+    return /[ุู]/.test(word);
+
+}
+
+
+
+
+
+// ======================================
+// Apply Rule
+// ======================================
+
+
+function applyRule(word,rule){
+
+
+
+    let first =
+        word.charAt(0);
+
+
+
+    let rest =
+        word.substring(1);
+
+
+
+
+    let newFirst =
+        rule.transform
+        .replace_initial;
+
+
+
+
+    let firstPart =
+        newFirst + rest;
+
+
+
+
+
+    let length =
+        checkVowelLength(word);
+
+
+
+
+
+    let addVowel =
+        getAddVowel(
+            rule,
+            length
+        );
+
+
+
+
+
+    let secondPart =
+        first +
+        addVowel +
+        getFinal(word);
+
+
+
+
+
+    return firstPart + secondPart;
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// ตรวจเสียงสั้น/ยาว
+// ======================================
+
+
+function checkVowelLength(word){
+
+
+    const longVowel =
+    [
+        "า",
+        "ี",
+        "ื",
+        "ู",
+        "เ",
+        "แ",
+        "โ",
+        "อ",
+        "เอีย",
+        "เอือ",
+        "อัว"
+    ];
+
+
+
+    for(
+        let v of longVowel
+    ){
+
+        if(
+            word.includes(v)
+        ){
+
+            return "long";
+
+        }
+
+    }
+
+
+    return "short";
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// เลือกสระเติม
+// ======================================
+
+
+function getAddVowel(rule,type){
+
+
+
+    if(type==="long"){
+
+        return rule
+        .transform
+        .added_vowel
+        .long;
+
+    }
+
+
+
+    return rule
+    .transform
+    .added_vowel
+    .short;
+
+
+}
+
+
+
+
+
+
+// ======================================
+// หาเสียงท้าย
+// ======================================
+
+
+function getFinal(word){
+
+
+    const finals =
+    [
+        "ก",
+        "ข",
+        "ค",
+        "ง",
+        "ด",
+        "ต",
+        "น",
+        "ม",
+        "ย",
+        "ว",
+        "บ",
+        "ป"
+    ];
+
+
+
+    for(
+        let f of finals
+    ){
+
+        if(
+            word.endsWith(f)
+        ){
+
+            return f;
+
+        }
+
+    }
+
+
+
+    return "";
+
+}
+
+
+
+
+
+
+
+// ======================================
+// Paste
+// ======================================
+
+
+async function pasteText(){
+
+
+    let text =
+        await navigator.clipboard
+        .readText();
+
+
+
+    document
+    .getElementById("thaiInput")
+    .value=text;
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// Clear
+// ======================================
+
+
+function clearText(){
+
+
+    document
+    .getElementById("thaiInput")
+    .value="";
+
+
+    document
+    .getElementById("result")
+    .innerText="";
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// Copy
+// ======================================
+
+
+function copyResult(){
+
+
+    let text =
+        document
+        .getElementById("result")
+        .innerText;
+
+
+
+    navigator.clipboard
+    .writeText(text);
+
 
 }
