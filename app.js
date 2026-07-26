@@ -1,8 +1,4 @@
-let mode="thai";
-
-
 let dictionary=[];
-
 
 
 const input =
@@ -13,105 +9,31 @@ const output =
 document.getElementById("outputText");
 
 
-const info =
-document.getElementById("info");
-
+const stars =
+document.getElementById("stars");
 
 
 
 
 fetch("data/dictionary.json")
 
-.then(res=>res.json())
+.then(response=>response.json())
 
 .then(data=>{
 
-
 dictionary=data;
 
-
 });
 
 
 
 
 
+function showStars(number){
 
-
-function translateSentence(text){
-
-
-let words =
-text.split(" ");
-
-
-let result=[];
-
-let score=[];
-
-
-
-words.forEach(word=>{
-
-
-let found =
-dictionary.find(
-item=>item.thai===word
-);
-
-
-
-if(found){
-
-
-result.push(found.luu[0]);
-
-
-score.push(found.confidence);
-
-
-}
-
-else{
-
-
-result.push(word);
-
-
-}
-
-
-});
-
-
-
-
-return {
-
-
-text:result.join(" "),
-
-
-score:
-
-score.length
-
-?
-
-Math.round(
-score.reduce((a,b)=>a+b)
-/
-score.length
-)
-
-:
-
-0
-
-
-};
-
-
+return "⭐".repeat(number)
++
+"☆".repeat(5-number);
 
 }
 
@@ -119,62 +41,7 @@ score.length
 
 
 
-
-
-function translateBack(text){
-
-
-
-let words =
-text.split(" ");
-
-
-
-let result=[];
-
-
-
-words.forEach(word=>{
-
-
-let found =
-dictionary.find(
-item=>item.luu.includes(word)
-);
-
-
-
-if(found){
-
-result.push(found.thai);
-
-}
-
-else{
-
-result.push(word);
-
-}
-
-
-});
-
-
-
-return result.join(" ");
-
-
-
-}
-
-
-
-
-
-
-
-
-function run(){
+function translate(){
 
 
 let text =
@@ -182,65 +49,43 @@ input.value.trim();
 
 
 
-if(!text){
-
-output.value="";
-
-info.innerHTML="";
-
-return;
-
-}
+let found =
+dictionary.find(
+item=>item.thai===text
+);
 
 
 
 
-if(mode==="thai"){
+if(found){
 
 
-let result =
-translateSentence(text);
+output.value =
+found.luu;
 
 
-output.value=result.text;
+stars.innerHTML =
+showStars(found.confidence);
 
-
-
-if(result.score){
-
-info.innerHTML=
-"💗 ความมั่นใจ "
-+
-result.score
-+
-"%";
 
 }
 
 else{
 
-info.innerHTML=
-"📝 มีคำที่ยังไม่มีในฐานข้อมูล";
 
-}
-
-
-}
+output.value =
+"ยังไม่มีข้อมูล";
 
 
-else{
-
-
-output.value=
-translateBack(text);
+stars.innerHTML =
+"☆☆☆☆☆";
 
 
 }
 
 
+
 }
-
-
 
 
 
@@ -248,10 +93,8 @@ translateBack(text);
 
 input.addEventListener(
 "input",
-run
+translate
 );
-
-
 
 
 
@@ -262,41 +105,19 @@ document
 .onclick=function(){
 
 
-mode =
-mode==="thai"
-?
-"luu"
-:
-"thai";
+let temp =
+input.value;
 
 
-input.value="";
+input.value =
+output.value;
 
-output.value="";
 
-info.innerHTML="";
+output.value =
+temp;
 
 
 };
-
-
-
-
-
-
-
-document
-.getElementById("clearBtn")
-.onclick=function(){
-
-input.value="";
-
-output.value="";
-
-info.innerHTML="";
-
-};
-
 
 
 
@@ -313,6 +134,47 @@ output.value
 );
 
 
-alert("คัดลอกแล้ว");
+alert("คัดลอกแล้ว 💗");
+
+
+};
+
+
+
+
+
+
+document
+.getElementById("favBtn")
+.onclick=function(){
+
+
+let fav =
+JSON.parse(
+localStorage.getItem("favorites")
+)
+||
+[];
+
+
+
+fav.push({
+
+thai:input.value,
+
+luu:output.value
+
+});
+
+
+
+localStorage.setItem(
+"favorites",
+JSON.stringify(fav)
+);
+
+
+alert("บันทึกแล้ว 💗");
+
 
 };

@@ -11,59 +11,62 @@
 
 <link rel="stylesheet" href="style.css">
 
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#ec6fa9">
+
 </head>
 
 
 <body>
 
 
-<div class="container">
+<div class="app">
 
 
 <header>
 
-<h1>🏳️‍🌈 Luu Translator</h1>
+<img src="assets/logo.svg" class="logo">
+
+<div>
+
+<h1>
+🏳️‍🌈 Luu Translator
+</h1>
 
 <p>
-🇹🇭 Thai ↔ 🏳️‍🌈 Luu Language
+🇹🇭 Thai ↔ Luu Language
 </p>
+
+</div>
 
 </header>
 
 
 
-<div class="translator">
+
+<main>
 
 
-<div class="box">
+<section class="card">
 
-
-<h2>🇹🇭 ภาษาไทย</h2>
+<div class="label">
+🇹🇭 ภาษาไทย
+</div>
 
 
 <textarea
 id="inputText"
-placeholder="พิมพ์ข้อความภาษาไทย..."
+placeholder="พิมพ์คำหรือประโยค..."
 ></textarea>
 
 
-
-<div class="buttons">
-
-<button id="clearBtn">
-🗑 ล้าง
-</button>
-
-
-</div>
-
-
-</div>
+</section>
 
 
 
 
-<button id="switchBtn" class="switch">
+<button id="switchBtn">
 ⇄
 </button>
 
@@ -71,46 +74,104 @@ placeholder="พิมพ์ข้อความภาษาไทย..."
 
 
 
-<div class="box">
+<section class="card">
 
 
-<h2>🏳️‍🌈 ภาษาลู</h2>
+<div class="label">
+🏳️‍🌈 ภาษาลู
+</div>
+
 
 
 <textarea
 id="outputText"
 placeholder="ผลลัพธ์..."
-readonly>
-</textarea>
+readonly></textarea>
 
 
-<div id="info"></div>
+
+<div id="stars">
+☆☆☆☆☆
+</div>
+
+
+
+
+<div class="buttons">
 
 
 <button id="copyBtn">
-📄 คัดลอก
+📋 คัดลอก
+</button>
+
+
+<button id="favBtn">
+💗 บันทึก
 </button>
 
 
 </div>
 
 
+</section>
+
+
+</main>
+
+
+
+
+
+<nav>
+
+
+<button class="active">
+🏠
+</button>
+
+
+<button>
+🕘
+</button>
+
+
+<button>
+💗
+</button>
+
+
+<button>
+⚙️
+</button>
+
+
+</nav>
+
+
+
 </div>
 
 
-
-<footer>
-
-Luu Translator Community Project
-
-</footer>
-
-
-</div>
 
 
 
 <script src="app.js"></script>
+
+
+<script>
+
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register(
+"service-worker.js"
+);
+
+}
+
+
+</script>
+
 
 </body>
 

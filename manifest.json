@@ -1,0 +1,28 @@
+{
+"name":"Luu Translator",
+
+"short_name":"Luu",
+
+"description":"Thai - Luu Language Translator",
+
+"start_url":"./index.html",
+
+"display":"standalone",
+
+"orientation":"portrait",
+
+"background_color":"#fff5fa",
+
+"theme_color":"#ec6fa9",
+
+"icons":[
+
+{
+"src":"assets/logo.svg",
+"sizes":"512x512",
+"type":"image/svg+xml"
+}
+
+]
+
+}
