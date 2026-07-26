@@ -1,18 +1,38 @@
 // ======================================
 // Thai Syllable Analyzer
-// Version 1.0
+// Version 2.0
 // ======================================
 
 
-// กลุ่มสระไทย
+// คำช่วยสำหรับแยกพยางค์หลายพยางค์
+const commonSyllablePatterns = [
 
+    "กะเทย",
+    "วันนี้",
+    "ปลาทอง",
+    "เครื่องดนตรี",
+    "สมุดหนังสือ",
+    "ขอบใจ",
+    "เก่งมาก",
+    "กล้ามาก",
+    "รักนะ",
+    "ไม่บอก",
+    "อยากได้",
+    "กำลังไป"
+
+];
+
+
+
+
+// สระไทย
 const thaiVowels = [
 
     "เอีย",
     "เอือ",
     "อัว",
 
-    "า",
+    "อา",
     "อี",
     "อือ",
     "อู",
@@ -23,10 +43,10 @@ const thaiVowels = [
     "ออ",
     "เออ",
 
-    "ะ",
-    "ิ",
-    "ึ",
-    "ุ",
+    "อะ",
+    "อิ",
+    "อึ",
+    "อุ",
 
     "เ",
     "แ"
@@ -35,8 +55,8 @@ const thaiVowels = [
 
 
 
-// ตัวสะกดที่พบบ่อย
 
+// ตัวสะกด
 const thaiFinals = [
 
     "ก",
@@ -45,20 +65,14 @@ const thaiFinals = [
 
     "ง",
 
-    "จ",
-    "ช",
-    "ซ",
-
     "ด",
     "ต",
-    "ถ",
     "ท",
 
     "น",
 
     "บ",
     "ป",
-    "พ",
 
     "ม",
 
@@ -71,63 +85,199 @@ const thaiFinals = [
 
 
 // ======================================
-// วิเคราะห์พยางค์
+// แยกคำไทยเป็นพยางค์
 // ======================================
 
-
-function analyzeSyllable(word){
-
-
-    let result = {
-
-        original: word,
-
-        initial: "",
-
-        vowel: "",
-
-        final: "",
-
-        tone: "",
-
-        short: false,
-
-        long: false
-
-    };
+function splitThaiWord(word){
 
 
+    // ถ้ามี pattern ที่รู้จัก
 
-    if(!word){
+    for(
+        let pattern of commonSyllablePatterns
+    ){
 
-        return result;
+        if(word === pattern){
+
+            return manualSplit(word);
+
+        }
 
     }
 
 
 
+    // ถ้าไม่รู้จัก
+    // คืนเป็น 1 พยางค์ก่อน
+
+    return [
+        word
+    ];
+
+}
 
 
-    // หา พยัญชนะต้น
 
-    result.initial =
-        word.charAt(0);
+// ======================================
+// ตารางคำหลายพยางค์พื้นฐาน
+// ======================================
+
+function manualSplit(word){
+
+
+    const table = {
+
+
+        "กะเทย":
+        [
+            "กะ",
+            "เทย"
+        ],
+
+
+        "วันนี้":
+        [
+            "วัน",
+            "นี้"
+        ],
+
+
+        "ปลาทอง":
+        [
+            "ปลา",
+            "ทอง"
+        ],
+
+
+        "เครื่องดนตรี":
+        [
+            "เครื่อง",
+            "ดน",
+            "ตรี"
+        ],
+
+
+        "สมุดหนังสือ":
+        [
+            "สะ",
+            "หมุด",
+            "หนัง",
+            "สือ"
+        ],
+
+
+        "ขอบใจ":
+        [
+            "ขอบ",
+            "ใจ"
+        ],
+
+
+        "เก่งมาก":
+        [
+            "เก่ง",
+            "มาก"
+        ],
+
+
+        "กล้ามาก":
+        [
+            "กล้า",
+            "มาก"
+        ],
+
+
+        "รักนะ":
+        [
+            "รัก",
+            "นะ"
+        ],
+
+
+        "ไม่บอก":
+        [
+            "ไม่",
+            "บอก"
+        ],
+
+
+        "อยากได้":
+        [
+            "อยาก",
+            "ได้"
+        ],
+
+
+        "กำลังไป":
+        [
+            "กำ",
+            "ลัง",
+            "ไป"
+        ]
+
+    };
+
+
+    return table[word] || [word];
+
+
+}
 
 
 
 
+// ======================================
+// วิเคราะห์พยางค์
+// ======================================
 
-    // หา สระ
+function analyzeSyllable(syllable){
+
+
+    let data = {
+
+        original:
+        syllable,
+
+        initial:
+        "",
+
+        vowel:
+        "",
+
+        final:
+        "",
+
+        long:
+        false,
+
+        short:
+        false,
+
+        hasRL:
+        false,
+
+        hasU:
+        false
+
+    };
+
+
+
+    data.initial =
+        syllable.charAt(0);
+
+
+
 
     for(
         let v of thaiVowels
     ){
 
         if(
-            word.includes(v)
+            syllable.includes(v)
         ){
 
-            result.vowel = v;
+            data.vowel=v;
 
             break;
 
@@ -137,20 +287,16 @@ function analyzeSyllable(word){
 
 
 
-
-
-    // หา ตัวสะกด
 
     for(
         let f of thaiFinals
     ){
 
         if(
-            word.endsWith(f) &&
-            word.length > 1
+            syllable.endsWith(f)
         ){
 
-            result.final=f;
+            data.final=f;
 
             break;
 
@@ -161,22 +307,32 @@ function analyzeSyllable(word){
 
 
 
-
-
-    // เช็คเสียงสั้นยาว
-
-    result.long =
-        isLongVowel(
-            result.vowel
+    data.hasRL =
+        /[รล]/.test(
+            syllable
         );
 
 
-    result.short =
-        !result.long;
+
+    data.hasU =
+        /[ุู]/.test(
+            syllable
+        );
 
 
 
-    return result;
+    data.long =
+        isLongVowel(
+            data.vowel
+        );
+
+
+    data.short =
+        !data.long;
+
+
+
+    return data;
 
 
 }
@@ -184,70 +340,27 @@ function analyzeSyllable(word){
 
 
 
-
-
-// ======================================
-// ตรวจสระยาว
-// ======================================
 
 
 function isLongVowel(vowel){
 
 
-    const long = [
+    return [
 
-        "า",
+        "อา",
         "อี",
         "อือ",
         "อู",
-
         "เอ",
         "แอ",
         "โอ",
         "ออ",
         "เออ",
-
         "เอีย",
         "เอือ",
         "อัว"
 
-    ];
+    ].includes(vowel);
 
-
-
-    return long.includes(vowel);
-
-
-}
-
-
-
-
-
-
-// ======================================
-// แยกคำหลายพยางค์เบื้องต้น
-// ======================================
-
-
-function splitThaiWord(word){
-
-
-    /*
-    
-    Version แรก:
-    คืนค่าเป็นคำเดียวก่อน
-
-    Version ต่อไป:
-    จะเพิ่ม Dictionary
-    ตำแหน่งตัดเสียง
-    และ Pattern ภาษาไทย
-
-    */
-
-
-    return [
-        analyzeSyllable(word)
-    ];
 
 }
