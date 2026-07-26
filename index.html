@@ -22,62 +22,83 @@
 
 <header>
 
-<img src="assets/logo.svg" class="logo">
-
-<div>
-
-<h1>🏳️‍🌈 Luu Translator</h1>
-
-<p>🇹🇭 Thai ↔ Luu Language</p>
-
-</div>
+<h1>
+🏳️‍🌈 Luu Translator
+</h1>
 
 </header>
 
 
 
+<section class="box">
 
-<main>
 
-
-<section class="card">
-
-<div class="label">
+<h2>
 🇹🇭 ภาษาไทย
-</div>
+</h2>
 
 
 <textarea
-id="inputText"
-placeholder="พิมพ์ประโยค เช่น ฉัน กิน ข้าว">
-</textarea>
+id="thaiInput"
+placeholder="พิมพ์หรือวางข้อความภาษาไทย..."
+></textarea>
+
+
+<div class="buttons">
+
+
+<button id="pasteBtn">
+📋 Paste
+</button>
+
+
+<button id="clearBtn">
+🗑️ Clear
+</button>
+
+
+</div>
 
 
 </section>
 
 
 
-<button id="switchBtn">
-⇄
+
+
+<section class="box">
+
+
+<h2>
+🏳️‍🌈 ภาษาลู
+</h2>
+
+
+<textarea
+id="luuOutput"
+readonly
+placeholder="ผลลัพธ์..."
+></textarea>
+
+
+
+<button id="copyBtn">
+📋 Copy
 </button>
 
 
 
-
-<section class="card">
-
-
-<div class="label">
-🏳️‍🌈 ภาษาลู
-</div>
+</section>
 
 
-<textarea
-id="outputText"
-readonly
-placeholder="ผลลัพธ์">
-</textarea>
 
+
+
+
+<div class="confidence">
+
+
+ความมั่นใจ
 
 
 <div id="stars">
@@ -85,46 +106,9 @@ placeholder="ผลลัพธ์">
 </div>
 
 
-<div id="notice"></div>
-
-
-
-<div class="buttons">
-
-
-<button id="copyBtn">
-📋 คัดลอก
-</button>
-
-
-<button id="favBtn">
-💗 บันทึก
-</button>
-
-
 </div>
 
 
-</section>
-
-
-
-</main>
-
-
-
-
-<nav>
-
-<button class="active">🏠</button>
-
-<button>📖</button>
-
-<button>💗</button>
-
-<button>⚙️</button>
-
-</nav>
 
 
 
