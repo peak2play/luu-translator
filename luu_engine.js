@@ -1,13 +1,10 @@
 // =====================================
 // Luu Engine V1.0
-// Thai Parser + Debug Mode
+// Thai Parser Debug Version
 // =====================================
 
 
-// -----------------------------
-// แยกพยางค์
-// -----------------------------
-
+// แยกคำหลายพยางค์ที่รู้จักก่อน
 function splitSyllables(word){
 
     const known = {
@@ -36,26 +33,29 @@ function splitSyllables(word){
 
 
 
-// -----------------------------
-// อ่านโครงสร้างพยางค์
-// -----------------------------
+// =====================================
+// วิเคราะห์พยางค์ไทย
+// =====================================
 
 function parseThaiSyllable(word){
 
 
-    let data={
+    let data = {
 
-        word:word,
-        initial:"",
-        vowel:"",
-        final:""
+        word: word,
+        initial: "",
+        vowel: "",
+        final: ""
 
     };
 
 
-    // ตัวสะกด
 
-    const finals=[
+    // -----------------------
+    // ตัวสะกด
+    // -----------------------
+
+    const finals = [
         "ก",
         "ง",
         "ด",
@@ -72,10 +72,10 @@ function parseThaiSyllable(word){
         if(
             word.endsWith(f)
             &&
-            word.length>1
+            word.length > 1
         ){
 
-            data.final=f;
+            data.final = f;
             break;
 
         }
@@ -84,15 +84,27 @@ function parseThaiSyllable(word){
 
 
 
-    // พยัญชนะต้นควบ
+    // -----------------------
+    // พยัญชนะต้น
+    // -----------------------
 
-    const clusters=[
+    const clusters = [
 
-        "กร","กล","กว",
-        "คร","คล","คว",
+        "กร",
+        "กล",
+        "กว",
+
+        "คร",
+        "คล",
+        "คว",
+
         "ตร",
-        "ปร","ปล",
-        "พร","พล"
+
+        "ปร",
+        "ปล",
+
+        "พร",
+        "พล"
 
     ];
 
@@ -102,7 +114,7 @@ function parseThaiSyllable(word){
 
         if(word.startsWith(c)){
 
-            data.initial=c;
+            data.initial = c;
             break;
 
         }
@@ -111,13 +123,17 @@ function parseThaiSyllable(word){
 
 
 
-    if(!data.initial){
+    if(data.initial === ""){
 
-        data.initial=word[0];
+        data.initial = word[0] || "";
 
     }
 
 
+
+    // -----------------------
+    // สระ
+    // -----------------------
 
 
     // สระประสม
@@ -128,7 +144,7 @@ function parseThaiSyllable(word){
         word.includes("เปีย")
     ){
 
-        data.vowel="เอีย";
+        data.vowel = "เอีย";
 
     }
 
@@ -136,7 +152,7 @@ function parseThaiSyllable(word){
         word.includes("เอือ")
     ){
 
-        data.vowel="เอือ";
+        data.vowel = "เอือ";
 
     }
 
@@ -144,29 +160,28 @@ function parseThaiSyllable(word){
         word.includes("อัว")
     ){
 
-        data.vowel="อัว";
+        data.vowel = "อัว";
 
     }
-
 
 
     // สระนำ
 
     else if(word.includes("โ")){
 
-        data.vowel="โอ";
+        data.vowel = "โอ";
 
     }
 
     else if(word.includes("แ")){
 
-        data.vowel="แอ";
+        data.vowel = "แอ";
 
     }
 
     else if(word.includes("เ")){
 
-        data.vowel="เอ";
+        data.vowel = "เอ";
 
     }
 
@@ -176,35 +191,34 @@ function parseThaiSyllable(word){
         word.includes("ใ")
     ){
 
-        data.vowel="ไอ";
+        data.vowel = "ไอ";
 
     }
 
 
-
-    // สระปกติ
+    // สระทั่วไป
 
     else if(word.includes("า")){
 
-        data.vowel="อา";
+        data.vowel = "อา";
 
     }
 
     else if(word.includes("ี")){
 
-        data.vowel="อี";
+        data.vowel = "อี";
 
     }
 
     else if(word.includes("ู")){
 
-        data.vowel="อู";
+        data.vowel = "อู";
 
     }
 
     else if(word.includes("ุ")){
 
-        data.vowel="อุ";
+        data.vowel = "อุ";
 
     }
 
@@ -214,15 +228,16 @@ function parseThaiSyllable(word){
         word.includes("ั")
     ){
 
-        data.vowel="อะ";
+        data.vowel = "อะ";
 
     }
 
     else{
 
-        data.vowel="อะ";
+        data.vowel = "อะ";
 
     }
+
 
 
     return data;
@@ -231,51 +246,56 @@ function parseThaiSyllable(word){
 
 
 
-// -----------------------------
-// Debug
-// -----------------------------
+// =====================================
+// Debug Parser
+// =====================================
 
 function debugParser(text){
 
 
-    return text
+    let words = text
+        .split(/\s+/)
+        .filter(
+            w => w.length > 0
+        );
 
-    .trim()
 
-    .split(/\s+/)
 
-    .map(word=>{
+    return words.map(word=>{
+
 
         let syllables =
             splitSyllables(word);
 
 
-        return syllables.map(s=>{
 
-            return parseThaiSyllable(s);
+        return syllables.map(syllable=>{
+
+
+            return parseThaiSyllable(syllable);
+
 
         });
 
-    });
 
+    });
 
 }
 
 
 
-// -----------------------------
+// =====================================
 // ฟังก์ชันหลักที่ app.js เรียก
-// -----------------------------
+// =====================================
 
 function translateLuuText(text){
 
-
-    // ตอนนี้คืนค่า Debug ก่อน
 
     return JSON.stringify(
         debugParser(text),
         null,
         2
     );
+
 
 }
