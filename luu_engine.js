@@ -1,15 +1,16 @@
 // =====================================
-// Luu Engine V2.3
+// Luu Engine V2.4
+// Stable Base Version
 // =====================================
 
 
 // -----------------------------
-// แยกคำ
+// Split word
 // -----------------------------
 
 function splitWords(text){
 
-    const specialSplit = {
+    const dictionary = {
 
         "รักแมว":[
             "รัก",
@@ -19,35 +20,33 @@ function splitWords(text){
     };
 
 
-    let words=[];
+    let result=[];
 
 
-    for(let token of text.trim().split(/\s+/)){
+    for(let w of text.trim().split(/\s+/)){
 
+        if(dictionary[w]){
 
-        if(specialSplit[token]){
-
-            words.push(...specialSplit[token]);
+            result.push(...dictionary[w]);
 
         }
-
         else{
 
-            words.push(token);
+            result.push(w);
 
         }
 
     }
 
 
-    return words;
+    return result;
 
 }
 
 
 
 // -----------------------------
-// แยกพยางค์
+// Split syllable
 // -----------------------------
 
 function splitSyllables(word){
@@ -55,12 +54,10 @@ function splitSyllables(word){
 
     const dictionary={
 
-
         "กะเทย":[
             "กะ",
             "เทย"
         ],
-
 
         "เปียโน":[
             "เปีย",
@@ -82,8 +79,6 @@ function splitSyllables(word){
 
 function parseThaiSyllable(word){
 
-
-    // คำล็อกที่ซับซ้อน
 
     if(word==="เปีย"){
 
@@ -129,65 +124,9 @@ function parseThaiSyllable(word){
 
 
 
-    // ---------------------
-    // ควบกล้ำ
-    // ---------------------
-
-    const clusters=[
-
-        "กร",
-        "กล",
-        "กว",
-
-        "คร",
-        "คล",
-        "คว",
-
-        "ปร",
-        "ปล",
-
-        "พร",
-        "พล"
-
-    ];
-
-
-
-    for(let c of clusters){
-
-        if(word.startsWith(c)){
-
-            data.initial=c;
-
-            break;
-
-        }
-
-    }
-
-
-
-    let body=word;
-
-
-
-    if(data.initial){
-
-        body =
-        word.substring(
-            data.initial.length
-        );
-
-    }
-
-
-
-    // ---------------------
     // ตัวสะกด
-    // ---------------------
 
-    const finals=[
-
+    let finals=[
         "ก",
         "ง",
         "ด",
@@ -195,28 +134,27 @@ function parseThaiSyllable(word){
         "บ",
         "ม",
         "ว"
-
     ];
 
+
+    let body=word;
 
 
     for(let f of finals){
 
         if(
-            body.endsWith(f)
+            word.endsWith(f)
             &&
-            body.length>1
+            word.length>1
         ){
 
             data.final=f;
 
-
             body =
-            body.substring(
+            word.substring(
                 0,
-                body.length-1
+                word.length-1
             );
-
 
             break;
 
@@ -226,37 +164,20 @@ function parseThaiSyllable(word){
 
 
 
-    if(!data.initial){
-
-        data.initial =
-            body[0] || "";
-
-        body =
-            body.substring(1);
-
-    }
+    data.initial =
+        body[0] || "";
 
 
 
-    // ---------------------
-    // สระ
-    // ---------------------
-
-    if(body.includes("ู")){
-
-        data.vowel="อู";
-
-    }
-
-    else if(body.includes("า")){
-
-        data.vowel="อา";
-
-    }
-
-    else if(body.includes("ะ")){
+    if(body.includes("ะ")){
 
         data.vowel="อะ";
+
+    }
+
+    else if(body.includes("ู")){
+
+        data.vowel="อู";
 
     }
 
@@ -275,25 +196,22 @@ function parseThaiSyllable(word){
 
 
 // -----------------------------
-// Builder
+// Build Luu
 // -----------------------------
 
 function buildLuu(data){
 
 
     let firstInitial =
-
-    (
-        data.initial.includes("ร")
-        ||
-        data.initial.includes("ล")
-    )
-
-    ?
-    "ซ"
-
-    :
-    "ล";
+        (
+            data.initial==="ร"
+            ||
+            data.initial==="ล"
+        )
+        ?
+        "ซ"
+        :
+        "ล";
 
 
 
@@ -302,88 +220,105 @@ function buildLuu(data){
 
 
 
-    // สระอะ
-
-    if(data.vowel==="อะ"){
+    switch(data.vowel){
 
 
-        if(data.final){
+        case "อะ":
 
-            first =
-                firstInitial
-                +
-                "ั"
-                +
-                data.final;
 
+            if(data.final){
+
+
+                first =
+                    firstInitial
+                    +
+                    "ั"
+                    +
+                    data.final;
+
+
+                second =
+                    data.initial
+                    +
+                    "ุ"
+                    +
+                    data.final;
+
+
+            }
+            else{
+
+
+                first =
+                    firstInitial
+                    +
+                    "ะ";
+
+
+                second =
+                    data.initial
+                    +
+                    "ุ";
+
+
+            }
+
+
+            break;
+
+
+
+        case "เอีย":
+
+            first="เลีย";
 
             second =
                 data.initial
                 +
-                "ุ"
-                +
-                data.final;
+                "ู";
 
-        }
-
-        else{
+            break;
 
 
-            first =
-                firstInitial
-                +
-                "ะ";
 
+        case "โอ":
+
+            first="โล";
 
             second =
                 data.initial
                 +
-                "ุ";
+                "ู";
 
-        }
-
-    }
+            break;
 
 
 
-    // สระอู
+        case "เอย":
 
-    else if(data.vowel==="อู"){
+            first="เลย";
 
+            second =
+                data.initial
+                +
+                "ุย";
 
-        first =
-            firstInitial
-            +
-            "ู";
-
-
-        second =
-            data.initial
-            +
-            "ุ";
-
-
-    }
+            break;
 
 
 
-    else{
+        default:
 
-
-        first =
-            firstInitial;
-
-
-        second =
-            data.initial
-            +
-            "ู";
+            first=firstInitial;
+            second=data.initial+"ู";
 
     }
 
 
 
-    return first+" "+second;
+    // สำคัญ: ไม่ใส่ช่องว่างตรงนี้
+
+    return first + second;
 
 }
 
