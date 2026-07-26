@@ -5,14 +5,15 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>🏳️‍🌈 Luu Translator</title>
 
 <link rel="stylesheet" href="style.css">
 
 <link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#ec6fa9">
 
 </head>
 
@@ -29,13 +30,9 @@ content="width=device-width, initial-scale=1.0">
 
 <div>
 
-<h1>
-🏳️‍🌈 Luu Translator
-</h1>
+<h1>🏳️‍🌈 Luu Translator</h1>
 
-<p>
-🇹🇭 Thai ↔ Luu Language
-</p>
+<p>🇹🇭 Thai ↔ Luu Language</p>
 
 </div>
 
@@ -48,18 +45,16 @@ content="width=device-width, initial-scale=1.0">
 
 <section class="card">
 
-
 <div class="label">
 🇹🇭 ภาษาไทย
 </div>
-
 
 
 <div class="input-area">
 
 <textarea
 id="inputText"
-placeholder="พิมพ์หรือกดไมค์..."
+placeholder="พิมพ์ข้อความ..."
 ></textarea>
 
 
@@ -67,12 +62,10 @@ placeholder="พิมพ์หรือกดไมค์..."
 🎙️
 </button>
 
-
 </div>
 
 
 </section>
-
 
 
 
@@ -98,9 +91,8 @@ placeholder="พิมพ์หรือกดไมค์..."
 
 <textarea
 id="outputText"
-readonly
 placeholder="ผลลัพธ์..."
-></textarea>
+readonly></textarea>
 
 
 <button id="speakBtn">
@@ -118,7 +110,9 @@ placeholder="ผลลัพธ์..."
 
 
 
+
 <div class="buttons">
+
 
 <button id="copyBtn">
 📋 คัดลอก
@@ -133,7 +127,9 @@ placeholder="ผลลัพธ์..."
 </div>
 
 
+
 </section>
+
 
 
 </main>
@@ -159,7 +155,6 @@ placeholder="ผลลัพธ์..."
 ⚙️
 </button>
 
-
 </nav>
 
 
@@ -169,6 +164,21 @@ placeholder="ผลลัพธ์..."
 
 
 <script src="app.js"></script>
+
+
+<script>
+
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register(
+"service-worker.js"
+);
+
+}
+
+
+</script>
 
 
 </body>
